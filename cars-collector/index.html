@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Radiator Springs — Collector's Edition</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html,body { width:100vw; height:100vh; overflow:hidden; background:#000; }
+canvas#bg { position:fixed; inset:0; width:100%; height:100%; }
+
+/* ── UI LAYER ── */
+#ui {
+  position:fixed; inset:0; z-index:10;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  pointer-events:none;
+}
+
+/* ── INTRO ── */
+#intro {
+  text-align:center;
+  animation: fadeUp 1.8s cubic-bezier(.22,1,.36,1) forwards;
+}
+.t-main {
+  font-family:'Impact','Arial Black',sans-serif;
+  font-size:clamp(52px,9vw,110px);
+  color:#ffd700;
+  text-shadow:0 0 40px #ff6b00,0 0 80px #ff3300,0 6px 12px #000,4px 4px 0 #8b0000;
+  letter-spacing:6px; line-height:1;
+}
+.t-sub {
+  font-family:'Georgia',serif;
+  font-size:clamp(14px,2.4vw,28px);
+  color:#fff;
+  text-shadow:0 2px 10px #000;
+  margin-top:14px; letter-spacing:10px;
+}
+.t-route {
+  font-family:'Impact','Arial Black',sans-serif;
+  font-size:clamp(22px,3.5vw,44px);
+  color:#e8722a;
+  text-shadow:0 2px 6px #000;
+  margin-top:10px;
+}
+.t-hint {
+  font-family:'Georgia',serif;
+  font-size:clamp(11px,1.4vw,16px);
+  color:rgba(255,255,255,0.5);
+  letter-spacing:3px;
+  margin-top:28px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* ── CAR CARD ── */
+#car-card {
+  position:fixed; inset:0; z-index:20;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  opacity:0; transition:opacity 0.5s ease;
+  pointer-events:none;
+  gap:0;
+}
+#car-card.show { opacity:1; pointer-events:all; }
+
+.c-number-badge {
+  font-family:'Impact','Arial Black',sans-serif;
+  font-size:clamp(16px,2.5vw,28px);
+  color:rgba(255,255,255,0.5);
+  letter-spacing:4px;
+  margin-bottom:10px;
+}
+
+.c-icon {
+  font-size:clamp(90px,16vw,180px);
+  line-height:1;
+  filter:drop-shadow(0 10px 30px rgba(0,0,0,0.9)) drop-shadow(0 0 20px var(--glow));
+  animation:carFloat 3.2s ease-in-out infinite;
+  margin-bottom:22px;
+}
+@keyframes carFloat {
+  0%,100%{transform:translateY(0) rotate(-1.5deg) scale(1);}
+  50%{transform:translateY(-14px) rotate(1.5deg) scale(1.03);}
+}
+
+.c-name {
+  font-family:'Impact','Arial Black',sans-serif;
+  font-size:clamp(34px,5.5vw,68px);
+  color:#ffd700;
+  text-shadow:0 0 30px var(--glow),0 0 60px var(--glow),0 5px 14px #000,3px 3px 0 var(--shadow);
+  letter-spacing:3px; text-align:center;
+  padding:0 20px;
+  line-height:1.1;
+}
+.c-sub {
+  font-family:'Georgia',serif;
+  font-size:clamp(13px,2vw,22px);
+  color:rgba(255,255,255,0.85);
+  text-shadow:0 2px 8px #000;
+  letter-spacing:4px; margin-top:8px;
+  text-align:center; padding:0 20px;
+}
+.c-tagline {
+  font-family:'Georgia',serif;
+  font-size:clamp(11px,1.4vw,15px);
+  color:rgba(255,200,80,0.7);
+  letter-spacing:2px; margin-top:6px;
+  text-align:center; font-style:italic;
+}
+
+/* ── SPOTLIGHT ── */
+.spotlight {
+  position:fixed;
+  width:clamp(200px,40vw,500px);
+  height:clamp(200px,40vw,500px);
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(255,230,100,0.12) 0%, transparent 70%);
+  pointer-events:none; z-index:15;
+  top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  animation:spotPulse 2.5s ease-in-out infinite;
+}
+@keyframes spotPulse {
+  0%,100%{transform:translate(-50%,-50%) scale(1); opacity:0.5;}
+  50%{transform:translate(-50%,-50%) scale(1.15); opacity:1;}
+}
+
+/* ── PROGRESS ── */
+#progress {
+  position:fixed; bottom:22px; left:50%;
+  transform:translateX(-50%);
+  display:flex; gap:9px; z-index:30;
+  align-items:center;
+}
+.dot {
+  width:8px; height:8px; border-radius:50%;
+  background:rgba(255,255,255,0.25);
+  transition:background 0.35s, transform 0.35s, width 0.35s;
+  cursor:pointer; pointer-events:all;
+}
+.dot.active {
+  background:#ffd700;
+  transform:scale(1.5);
+  width:22px; border-radius:4px;
+}
+
+/* ── TRANSITION OVERLAY ── */
+#trans {
+  position:fixed; inset:0; z-index:50;
+  background:#000; opacity:0;
+  pointer-events:none;
+  transition:opacity 0.35s ease;
+}
+#trans.flash { opacity:1; }
+
+/* ── CORNER BADGE ── */
+#badge {
+  position:fixed; top:18px; right:18px;
+  z-index:30; text-align:right;
+  pointer-events:none;
+}
+.badge-line {
+  font-family:'Impact',sans-serif;
+  font-size:13px; letter-spacing:2px;
+  text-shadow:0 1px 6px #000;
+}
+
+/* ── COUNTER ── */
+#counter {
+  position:fixed; top:18px; left:18px;
+  z-index:30; pointer-events:none;
+  font-family:'Georgia',serif;
+  font-size:13px; color:rgba(255,255,255,0.45);
+  letter-spacing:2px; text-shadow:0 1px 4px #000;
+}
+
+/* ── OUTRO ── */
+#outro {
+  position:fixed; inset:0; z-index:20;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  opacity:0; transition:opacity 0.6s;
+  pointer-events:none; text-align:center;
+  gap:10px;
+}
+#outro.show { opacity:1; }
+.o-title {
+  font-family:'Impact',sans-serif;
+  font-size:clamp(40px,7vw,80px);
+  color:#ffd700;
+  text-shadow:0 0 40px #ff6b00,0 5px 12px #000,3px 3px 0 #8b0000;
+  letter-spacing:5px;
+}
+.o-sub {
+  font-family:'Georgia',serif;
+  font-size:clamp(14px,2vw,24px);
+  color:#fff; letter-spacing:5px;
+  text-shadow:0 2px 8px #000;
+}
+.o-count {
+  font-family:'Impact',sans-serif;
+  font-size:clamp(48px,8vw,90px);
+  color:#e8722a;
+  text-shadow:0 0 30px #ff6b00,0 4px 10px #000;
+}
+.o-items {
+  font-family:'Georgia',serif;
+  font-size:clamp(11px,1.5vw,16px);
+  color:rgba(255,210,100,0.75);
+  letter-spacing:2px;
+}
+
+@keyframes fadeUp {
+  from{opacity:0;transform:translateY(50px);}
+  to{opacity:1;transform:translateY(0);}
+}
+@keyframes pulse {
+  0%,100%{opacity:0.4;} 50%{opacity:1;}
+}
+</style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+<div id="trans"></div>
+
+<!-- Intro -->
+<div id="ui">
+  <div id="intro">
+    <div class="t-main">RADIATOR SPRINGS</div>
+    <div class="t-sub">COLLECTOR'S EDITION</div>
+    <div class="t-route">&#9889; DISNEY · PIXAR CARS &#9889;</div>
+    <div class="t-hint">CLICK OR TAP TO BEGIN</div>
+  </div>
+</div>
+
+<!-- Spotlight glow -->
+<div class="spotlight" id="spot" style="display:none"></div>
+
+<!-- Car card -->
+<div id="car-card">
+  <div class="c-number-badge" id="c-badge">01 / 12</div>
+  <div class="c-icon" id="c-icon">&#127950;</div>
+  <div class="c-name" id="c-name">NAME</div>
+  <div class="c-sub" id="c-sub">SUBTITLE</div>
+  <div class="c-tagline" id="c-tag">TAGLINE</div>
+</div>
+
+<!-- Outro -->
+<div id="outro">
+  <div class="o-title">COLLECTION COMPLETE</div>
+  <div class="o-sub">RADIATOR SPRINGS · COLLECTOR'S EDITION</div>
+  <div class="o-count">12</div>
+  <div class="o-items">DISNEY · PIXAR CARS DIECAST CHARACTERS</div>
+  <div style="margin-top:18px;font-family:'Georgia',serif;font-size:13px;color:rgba(255,255,255,0.35);letter-spacing:2px;">CLICK TO REPLAY</div>
+</div>
+
+<!-- Progress -->
+<div id="progress"></div>
+
+<!-- Corner badge -->
+<div id="badge">
+  <div class="badge-line" style="color:#ffd700">COLLECTOR'S SHOWCASE</div>
+  <div class="badge-line" style="color:#e8722a;font-size:11px">DISNEY · PIXAR CARS</div>
+</div>
+
+<!-- Counter -->
+<div id="counter"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  DATA
+// ═══════════════════════════════════════════════════════════════
+const CARS = [
+  {
+    icon:'&#127950;',
+    name:'LIGHTNING McQUEEN',
+    sub:'RUSTEZE RACING CENTER',
+    tag:'"KA-CHOW!" · PISTON CUP CHAMPION · #95',
+    color:'#cc2200', glow:'#ff4400', shadow:'#660000'
+  },
+  {
+    icon:'&#128666;',
+    name:'MATER',
+    sub:'RADIATOR SPRINGS TOW & SALVAGE',
+    tag:'WORLD\'S BEST BACKWARDS DRIVER · LOYAL FRIEND',
+    color:'#8b5e3c', glow:'#d4903e', shadow:'#3d2010'
+  },
+  {
+    icon:'&#128668;',
+    name:'MACK',
+    sub:'RUSTEZE RACING TRANSPORT',
+    tag:'LIGHTNING\'S HAULER · BLUE THUNDER ON THE HIGHWAY',
+    color:'#1a4fa0', glow:'#3a7fd4', shadow:'#0a1a44'
+  },
+  {
+    icon:'&#128658;',
+    name:'RED',
+    sub:'RADIATOR SPRINGS FIRE DEPT.',
+    tag:'BRAVEST HEART · MOST CARING SOUL IN TOWN',
+    color:'#cc2200', glow:'#ff5500', shadow:'#660000'
+  },
+  {
+    icon:'&#127950;',
+    name:'CHICK HICKS',
+    sub:'HOSTILE TAKEOVER BANK RACING',
+    tag:'"THUNDER!" · #86 · THE PESKY LITTLE STICKER',
+    color:'#228b22', glow:'#44cc44', shadow:'#0a3a0a'
+  },
+  {
+    icon:'&#128659;',
+    name:'SHERIFF',
+    sub:'RADIATOR SPRINGS POLICE DEPT.',
+    tag:'GUARDIAN OF ROUTE 66 · LAW OF THE LAND',
+    color:'#1a1a4e', glow:'#6666cc', shadow:'#000022'
+  },
+  {
+    icon:'&#127950;',
+    name:'STRIP "THE KING" WEATHERS',
+    sub:'DINOCO RACING · D.I.N.O.C.O.',
+    tag:'SEVEN-TIME PISTON CUP CHAMPION · #43',
+    color:'#006699', glow:'#00aaee', shadow:'#002233'
+  },
+  {
+    icon:'&#127950;',
+    name:'McQUEEN · GRC LIVERY',
+    sub:'GLOBAL RACING CIRCUIT · CARS 3',
+    tag:'NEXT-GEN CHALLENGER · JACKSON STORM ERA',
+    color:'#990000', glow:'#ff2200', shadow:'#330000'
+  },
+  {
+    icon:'&#127950;',
+    name:'DINOCO McQUEEN',
+    sub:'DINOCO · ALTERNATE UNIVERSE',
+    tag:'WHAT IF? · #95 · METALLIC BLUE DREAM',
+    color:'#005588', glow:'#0088cc', shadow:'#001a33'
+  },
+  {
+    icon:'&#9881;',
+    name:'FRANK',
+    sub:'ORNAMENT VALLEY FARM',
+    tag:'CHUD BUCKER\'S NIGHTMARE · COMBINE HARVESTER',
+    color:'#cc3300', glow:'#ff5500', shadow:'#440000'
+  },
+  {
+    icon:'&#128656;',
+    name:'MISS FRITTER',
+    sub:'THUNDER HOLLOW DEMOLITION DERBY',
+    tag:'SCHOOL BUS OF DOOM · CRAZY EIGHT LEGEND',
+    color:'#cc8800', glow:'#ffaa00', shadow:'#443300'
+  },
+  {
+    icon:'&#128664;',
+    name:'FINN McMISSILE',
+    sub:'BRITISH INTELLIGENCE · CARS 2',
+    tag:'SPY · WORLD GRAND PRIX · LICENSE TO RACE',
+    color:'#336699', glow:'#66aadd', shadow:'#112233'
+  }
+];
+
+// ═══════════════════════════════════════════════════════════════
+//  CANVAS BACKGROUND
+// ═══════════════════════════════════════════════════════════════
+const canvas = document.getElementById('bg');
+const ctx = canvas.getContext('2d');
+let W, H, T = 0;
+
+function resize(){
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+// Stars
+const STARS = Array.from({length:180}, () => ({
+  x: Math.random(), y: Math.random() * 0.48,
+  r: Math.random() * 1.6 + 0.3,
+  ph: Math.random() * Math.PI * 2,
+  sp: Math.random() * 0.8 + 0.4
+}));
+
+function sky(){
+  const p = (Math.sin(T * 0.006) + 1) * 0.5;
+  const g = ctx.createLinearGradient(0, 0, 0, H * 0.73);
+  g.addColorStop(0,   `hsl(${238-p*18},${62+p*8}%,${8+p*4}%)`);
+  g.addColorStop(0.18,`hsl(${268-p*30},${54+p*6}%,${16+p*8}%)`);
+  g.addColorStop(0.42,`hsl(${22+p*6}, ${82+p*8}%,${38+p*12}%)`);
+  g.addColorStop(0.65,`hsl(36,90%,${54+p*5}%)`);
+  g.addColorStop(0.82,`hsl(35,85%,48%)`);
+  g.addColorStop(1,   `hsl(30,60%,32%)`);
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H * 0.73);
+}
+
+function stars(){
+  STARS.forEach(s => {
+    const b = (Math.sin(T * s.sp + s.ph) + 1) / 2;
+    ctx.beginPath();
+    ctx.arc(s.x * W, s.y * H, s.r, 0, Math.PI*2);
+    ctx.fillStyle = `rgba(255,255,255,${0.15 + b * 0.85})`;
+    ctx.fill();
+  });
+}
+
+function sun(){
+  const sx = W * 0.76, sy = H * 0.22 + Math.sin(T*0.007)*H*0.02;
+  const r  = Math.min(W,H)*0.055;
+  const g1 = ctx.createRadialGradient(sx,sy,0,sx,sy,r*5);
+  g1.addColorStop(0,'rgba(255,230,60,0.55)');
+  g1.addColorStop(0.25,'rgba(255,130,0,0.3)');
+  g1.addColorStop(1,'transparent');
+  ctx.fillStyle=g1;
+  ctx.fillRect(sx-r*5,sy-r*5,r*10,r*10);
+  const g2=ctx.createRadialGradient(sx,sy,0,sx,sy,r);
+  g2.addColorStop(0,'#fffbe0');
+  g2.addColorStop(0.5,'#ffd700');
+  g2.addColorStop(1,'#ff8c00');
+  ctx.beginPath(); ctx.arc(sx,sy,r,0,Math.PI*2);
+  ctx.fillStyle=g2; ctx.fill();
+}
+
+function mountains(){
+  const by=H*0.71;
+  // Far layer
+  let g=ctx.createLinearGradient(0,by-220,0,by);
+  g.addColorStop(0,'#3d1a0a'); g.addColorStop(1,'#1a0800');
+  ctx.fillStyle=g;
+  const pts1=[[0,100],[0.08,165],[0.18,85],[0.3,195],[0.42,125],[0.54,210],[0.65,145],[0.76,200],[0.87,115],[0.95,175],[1,100]];
+  ctx.beginPath(); ctx.moveTo(0,by);
+  pts1.forEach(([x,dy])=>ctx.lineTo(W*x,by-dy));
+  ctx.lineTo(W,by); ctx.closePath(); ctx.fill();
+  // Near layer
+  ctx.fillStyle='#0d0500';
+  const pts2=[[0,55],[0.07,95],[0.14,40],[0.24,75],[0.38,28],[0.52,65],[0.63,22],[0.77,85],[0.88,48],[1,62]];
+  ctx.beginPath(); ctx.moveTo(0,by);
+  pts2.forEach(([x,dy])=>ctx.lineTo(W*x,by-dy));
+  ctx.lineTo(W,by); ctx.closePath(); ctx.fill();
+}
+
+function buildings(){
+  const by=H*0.71;
+  ctx.fillStyle='#140800';
+
+  // Ramone's
+  ctx.beginPath();
+  ctx.moveTo(W*.04,by); ctx.lineTo(W*.04,by-82);
+  ctx.quadraticCurveTo(W*.065,by-98,W*.09,by-82);
+  ctx.lineTo(W*.09,by-58); ctx.lineTo(W*.13,by-58); ctx.lineTo(W*.13,by);
+  ctx.fill();
+
+  // Flo's V8
+  ctx.beginPath();
+  ctx.moveTo(W*.15,by); ctx.lineTo(W*.15,by-66);
+  ctx.lineTo(W*.175,by-88); ctx.lineTo(W*.2,by-66); ctx.lineTo(W*.2,by);
+  ctx.fill();
+
+  // Water tower
+  ctx.beginPath();
+  ctx.moveTo(W*.22,by); ctx.lineTo(W*.22,by-38);
+  ctx.lineTo(W*.218,by-38); ctx.lineTo(W*.218,by-105);
+  ctx.arc(W*.228,by-116,14,Math.PI*.75,Math.PI*.25,true);
+  ctx.lineTo(W*.238,by-105); ctx.lineTo(W*.238,by-38);
+  ctx.lineTo(W*.236,by-38); ctx.lineTo(W*.236,by);
+  ctx.fill();
+
+  // Curio shop
+  ctx.beginPath();
+  ctx.moveTo(W*.26,by); ctx.lineTo(W*.26,by-100);
+  ctx.lineTo(W*.305,by-118); ctx.lineTo(W*.35,by-100); ctx.lineTo(W*.35,by);
+  ctx.fill();
+
+  // Cozy Cone
+  [0,1,2].forEach(i=>{
+    const cx=W*(0.73+i*0.04);
+    ctx.beginPath();
+    ctx.moveTo(cx-14,by); ctx.lineTo(cx,by-65+i*4); ctx.lineTo(cx+14,by);
+    ctx.fill();
+  });
+
+  // Luigi's
+  ctx.beginPath();
+  ctx.moveTo(W*.82,by); ctx.lineTo(W*.82,by-75);
+  ctx.arc(W*.845,by-75,W*.025,Math.PI,0);
+  ctx.lineTo(W*.87,by); ctx.fill();
+
+  // Right building
+  ctx.beginPath();
+  ctx.moveTo(W*.9,by); ctx.lineTo(W*.9,by-88);
+  ctx.lineTo(W*.86,by-98); ctx.lineTo(W*.95,by-110);
+  ctx.lineTo(W*1.0,by-92); ctx.lineTo(W*1.0,by);
+  ctx.fill();
+
+  // Glowing windows
+  const wc=`rgba(255,${160+Math.sin(T*.4)*30|0},40,0.8)`;
+  ctx.fillStyle=wc;
+  [[.065,by-68],[.17,by-54],[.285,by-85],[.31,by-92],[.845,by-62],[.92,by-72]]
+    .forEach(([wx,wy])=>ctx.fillRect(W*wx-3,wy,7,9));
+}
+
+function road(){
+  const ry=H*0.71;
+  const rg=ctx.createLinearGradient(0,ry,0,H);
+  rg.addColorStop(0,'#252525'); rg.addColorStop(1,'#0e0e0e');
+  ctx.fillStyle=rg; ctx.fillRect(0,ry,W,H-ry);
+  // Edge line
+  ctx.fillStyle='rgba(255,255,255,0.25)';
+  ctx.fillRect(0,ry+2,W,3);
+  // Yellow dashes
+  ctx.fillStyle='#ffd700';
+  const dw=70,gh=60,total=dw+gh;
+  const off=(T*55)%total;
+  for(let x=-total+off;x<W+total;x+=total){
+    ctx.fillRect(x,H*0.745,dw,7);
+  }
+  // Ground shoulders
+  const sg=ctx.createLinearGradient(0,ry-30,0,ry);
+  sg.addColorStop(0,'#c4813a'); sg.addColorStop(1,'#8b5e3c');
+  ctx.fillStyle=sg; ctx.fillRect(0,H*0.715,W,H*0.71-H*0.715+6);
+}
+
+function frame(){
+  ctx.clearRect(0,0,W,H);
+  sky(); stars(); sun(); mountains(); buildings(); road();
+  T += 0.016;
+  requestAnimationFrame(frame);
+}
+frame();
+
+// ═══════════════════════════════════════════════════════════════
+//  SLIDESHOW
+// ═══════════════════════════════════════════════════════════════
+const introEl   = document.querySelector('#intro');
+const cardEl    = document.getElementById('car-card');
+const outroEl   = document.getElementById('outro');
+const cBadge    = document.getElementById('c-badge');
+const cIcon     = document.getElementById('c-icon');
+const cName     = document.getElementById('c-name');
+const cSub      = document.getElementById('c-sub');
+const cTag      = document.getElementById('c-tag');
+const progressEl= document.getElementById('progress');
+const transEl   = document.getElementById('trans');
+const spotEl    = document.getElementById('spot');
+const counterEl = document.getElementById('counter');
+const uiEl      = document.getElementById('ui');
+
+let current = -2; // -2=intro, -1=unused, 0-11=cars, 12=outro
+let timer;
+let started = false;
+
+// Build progress dots
+CARS.forEach((_,i)=>{
+  const d=document.createElement('div');
+  d.className='dot'; d.id=`dot-${i}`;
+  d.addEventListener('click',()=>{ clearTimeout(timer); jumpTo(i); });
+  progressEl.appendChild(d);
+});
+
+function flash(fn){
+  transEl.classList.add('flash');
+  setTimeout(()=>{ fn(); setTimeout(()=>transEl.classList.remove('flash'),60); }, 350);
+}
+
+function jumpTo(idx){
+  if(idx>=0 && idx<CARS.length) showCar(idx);
+  else if(idx>=CARS.length) showOutro();
+  else showIntroScreen();
+  scheduleNext(idx);
+}
+
+function showCar(i){
+  const c=CARS[i];
+  flash(()=>{
+    uiEl.style.display='none';
+    outroEl.classList.remove('show');
+    cardEl.style.setProperty('--glow',c.glow);
+    cardEl.style.setProperty('--shadow',c.shadow);
+    cBadge.textContent=`${String(i+1).padStart(2,'0')} / ${CARS.length}`;
+    cIcon.innerHTML=c.icon;
+    cName.textContent=c.name;
+    cSub.textContent=c.sub;
+    cTag.textContent=c.tag;
+    cName.style.setProperty('--glow',c.glow);
+    cName.style.setProperty('--shadow',c.shadow);
+    cardEl.classList.add('show');
+    spotEl.style.display='block';
+    counterEl.textContent=`${i+1} of ${CARS.length}`;
+    document.querySelectorAll('.dot').forEach(d=>d.classList.remove('active'));
+    const ad=document.getElementById(`dot-${i}`); if(ad) ad.classList.add('active');
+    current=i;
+  });
+}
+
+function showOutro(){
+  flash(()=>{
+    cardEl.classList.remove('show');
+    spotEl.style.display='none';
+    counterEl.textContent='';
+    document.querySelectorAll('.dot').forEach(d=>d.classList.remove('active'));
+    outroEl.classList.add('show');
+    current=CARS.length;
+  });
+}
+
+function showIntroScreen(){
+  flash(()=>{
+    cardEl.classList.remove('show');
+    outroEl.classList.remove('show');
+    spotEl.style.display='none';
+    counterEl.textContent='';
+    document.querySelectorAll('.dot').forEach(d=>d.classList.remove('active'));
+    uiEl.style.display='flex';
+    introEl.style.animation='none';
+    introEl.offsetHeight;
+    introEl.style.animation='fadeUp 1.8s cubic-bezier(.22,1,.36,1) forwards';
+    current=-2;
+  });
+}
+
+function scheduleNext(fromIdx){
+  clearTimeout(timer);
+  let delay;
+  if(fromIdx<0) delay=5000;
+  else if(fromIdx>=CARS.length) delay=7000;
+  else delay=4800;
+  timer=setTimeout(advance, delay);
+}
+
+function advance(){
+  if(current===-2){ jumpTo(0); }
+  else if(current<CARS.length-1){ jumpTo(current+1); }
+  else if(current===CARS.length-1){ jumpTo(CARS.length); } // outro
+  else { jumpTo(-2); } // loop back
+}
+
+// Click/tap to advance
+document.addEventListener('click', e=>{
+  if(e.target.closest('.dot')) return;
+  clearTimeout(timer);
+  advance();
+});
+
+// Auto-start after brief intro
+timer=setTimeout(()=>{
+  started=true;
+  advance();
+}, 4200);
+</script>
+</body>
+</html>
