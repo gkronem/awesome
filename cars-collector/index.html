@@ -5,59 +5,59 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Radiator Springs — Collector's Edition</title>
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
-html,body { width:100vw; height:100vh; overflow:hidden; background:#000; font-family:'Impact','Arial Black',sans-serif; }
-canvas#bg { position:fixed; inset:0; width:100%; height:100%; }
-canvas#fx { position:fixed; inset:0; width:100%; height:100%; pointer-events:none; z-index:8; }
-#vignette { position:fixed; inset:0; z-index:9; pointer-events:none; background:radial-gradient(ellipse at center,transparent 38%,rgba(0,0,0,0.4) 70%,rgba(0,0,0,0.82) 100%); }
-#ui { position:fixed; inset:0; z-index:12; display:flex; flex-direction:column; align-items:center; justify-content:center; pointer-events:none; }
-#intro { text-align:center; animation:fadeUp 2s cubic-bezier(.22,1,.36,1) forwards; }
-.t-main { font-size:clamp(50px,9vw,108px); color:#ffd700; text-shadow:0 0 40px #ff6b00,0 0 80px #ff3300,0 6px 12px #000,4px 4px 0 #8b0000; letter-spacing:6px; line-height:1; }
-.t-div { width:clamp(160px,30vw,360px); height:2px; background:linear-gradient(to right,transparent,#ffd700,transparent); margin:14px auto; }
-.t-sub { font-family:'Georgia',serif; font-size:clamp(13px,2.2vw,26px); color:#fff; text-shadow:0 2px 10px #000; letter-spacing:10px; }
-.t-route { font-size:clamp(20px,3.2vw,40px); color:#e8722a; text-shadow:0 2px 6px #000; margin-top:10px; }
-.t-hint { font-family:'Georgia',serif; font-size:clamp(11px,1.3vw,15px); color:rgba(255,255,255,0.45); letter-spacing:3px; margin-top:30px; animation:pulse 2s ease-in-out infinite; }
-#car-card { position:fixed; inset:0; z-index:20; display:flex; flex-direction:column; align-items:center; justify-content:center; opacity:0; transition:opacity 0.45s ease; pointer-events:none; }
-#car-card.show { opacity:1; pointer-events:all; }
-.card-frame { position:relative; border:2px solid rgba(255,215,0,0.35); border-radius:12px; padding:clamp(16px,2.5vw,30px) clamp(24px,4vw,52px); background:linear-gradient(160deg,rgba(0,0,0,0.6) 0%,rgba(20,10,0,0.75) 100%); backdrop-filter:blur(4px); box-shadow:0 0 0 1px rgba(255,215,0,0.1),0 0 50px rgba(0,0,0,0.85),inset 0 0 30px rgba(0,0,0,0.3); text-align:center; max-width:min(92vw,660px); }
-.card-frame::before,.card-frame::after { content:''; position:absolute; width:18px; height:18px; border-color:#ffd700; border-style:solid; }
-.card-frame::before { top:-1px; left:-1px; border-width:2px 0 0 2px; border-radius:4px 0 0 0; }
-.card-frame::after { bottom:-1px; right:-1px; border-width:0 2px 2px 0; border-radius:0 0 4px 0; }
-.cc-tr,.cc-bl { position:absolute; width:18px; height:18px; border-color:#ffd700; border-style:solid; }
-.cc-tr { top:-1px; right:-1px; border-width:2px 2px 0 0; border-radius:0 4px 0 0; }
-.cc-bl { bottom:-1px; left:-1px; border-width:0 0 2px 2px; border-radius:0 0 0 4px; }
-.c-num { font-size:clamp(11px,1.6vw,17px); color:rgba(255,215,0,0.45); letter-spacing:5px; margin-bottom:10px; }
-.c-svg { width:clamp(180px,32vw,360px); height:clamp(80px,14vw,160px); margin:0 auto 16px; filter:drop-shadow(0 8px 24px rgba(0,0,0,0.9)) drop-shadow(0 0 16px var(--glow,#ff4400)); animation:carFloat 3.2s ease-in-out infinite; display:flex; align-items:center; justify-content:center; }
-.c-svg svg { width:100%; height:100%; }
-@keyframes carFloat { 0%,100%{transform:translateY(0) rotate(-1deg) scale(1);} 50%{transform:translateY(-10px) rotate(1deg) scale(1.04);} }
-.c-name { font-size:clamp(26px,4.5vw,58px); color:#ffd700; text-shadow:0 0 25px var(--glow,#ff4400),0 0 50px var(--glow,#ff4400),0 4px 12px #000,3px 3px 0 var(--shadow,#660000); letter-spacing:3px; line-height:1.1; }
-.c-rule { width:60%; height:1px; background:linear-gradient(to right,transparent,rgba(255,215,0,0.4),transparent); margin:9px auto; }
-.c-sub { font-family:'Georgia',serif; font-size:clamp(11px,1.5vw,18px); color:rgba(255,255,255,0.82); letter-spacing:4px; }
-.c-tag { font-family:'Georgia',serif; font-size:clamp(10px,1.1vw,13px); color:rgba(255,200,80,0.6); letter-spacing:2px; margin-top:6px; font-style:italic; }
-#progress { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); display:flex; gap:8px; z-index:30; align-items:center; }
-.dot { width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,0.22); transition:all 0.35s; cursor:pointer; pointer-events:all; }
-.dot.active { background:#ffd700; transform:scale(1.5); width:20px; border-radius:4px; }
-#trans { position:fixed; inset:0; z-index:50; background:#000; opacity:0; pointer-events:none; transition:opacity 0.32s ease; }
-#trans.flash { opacity:1; }
-#badge { position:fixed; top:16px; right:16px; z-index:30; text-align:right; pointer-events:none; }
-.bl { font-size:12px; letter-spacing:2px; text-shadow:0 1px 6px #000; }
-#counter { position:fixed; top:16px; left:16px; z-index:30; pointer-events:none; font-family:'Georgia',serif; font-size:12px; color:rgba(255,255,255,0.38); letter-spacing:2px; text-shadow:0 1px 4px #000; }
-#r66 { position:fixed; bottom:48px; right:18px; z-index:30; pointer-events:none; }
-#outro { position:fixed; inset:0; z-index:20; display:flex; flex-direction:column; align-items:center; justify-content:center; opacity:0; transition:opacity 0.6s; pointer-events:none; text-align:center; gap:10px; }
-#outro.show { opacity:1; }
-.o-t { font-size:clamp(36px,6.5vw,76px); color:#ffd700; text-shadow:0 0 40px #ff6b00,0 5px 12px #000,3px 3px 0 #8b0000; letter-spacing:5px; }
-.o-r { width:clamp(140px,25vw,320px); height:2px; background:linear-gradient(to right,transparent,#ffd700,transparent); }
-.o-s { font-family:'Georgia',serif; font-size:clamp(12px,1.8vw,22px); color:#fff; letter-spacing:5px; text-shadow:0 2px 8px #000; }
-.o-n { font-size:clamp(52px,9vw,96px); color:#e8722a; text-shadow:0 0 30px #ff6b00,0 4px 10px #000; line-height:1; }
-.o-i { font-family:'Georgia',serif; font-size:clamp(10px,1.4vw,15px); color:rgba(255,210,100,0.7); letter-spacing:2px; }
-.o-rep { font-family:'Georgia',serif; font-size:12px; color:rgba(255,255,255,0.3); letter-spacing:2px; margin-top:18px; animation:pulse 2s ease-in-out infinite; }
-@keyframes fadeUp{from{opacity:0;transform:translateY(50px);}to{opacity:1;transform:translateY(0);}}
-@keyframes pulse{0%,100%{opacity:0.3;}50%{opacity:0.9;}}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100vw;height:100vh;overflow:hidden;background:#000;font-family:'Impact','Arial Black',sans-serif}
+canvas#bg{position:fixed;inset:0;width:100%;height:100%}
+canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:8}
+#vig{position:fixed;inset:0;z-index:9;pointer-events:none;background:radial-gradient(ellipse at center,transparent 35%,rgba(0,0,0,0.42) 68%,rgba(0,0,0,0.84) 100%)}
+#ui{position:fixed;inset:0;z-index:12;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+#intro{text-align:center;animation:fadeUp 2s cubic-bezier(.22,1,.36,1) forwards}
+.t-main{font-size:clamp(48px,9vw,108px);color:#ffd700;text-shadow:0 0 40px #ff6b00,0 0 80px #ff3300,0 6px 12px #000,4px 4px 0 #8b0000;letter-spacing:6px;line-height:1}
+.t-div{width:clamp(160px,30vw,360px);height:2px;background:linear-gradient(to right,transparent,#ffd700,transparent);margin:14px auto}
+.t-sub{font-family:'Georgia',serif;font-size:clamp(13px,2.2vw,26px);color:#fff;text-shadow:0 2px 10px #000;letter-spacing:10px}
+.t-route{font-size:clamp(20px,3.2vw,40px);color:#e8722a;text-shadow:0 2px 6px #000;margin-top:10px}
+.t-hint{font-family:'Georgia',serif;font-size:clamp(11px,1.3vw,15px);color:rgba(255,255,255,0.45);letter-spacing:3px;margin-top:30px;animation:pulse 2s ease-in-out infinite}
+#car-card{position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;transition:opacity 0.45s ease;pointer-events:none}
+#car-card.show{opacity:1;pointer-events:all}
+.card-frame{position:relative;border:2px solid rgba(255,215,0,0.35);border-radius:14px;padding:clamp(14px,2.2vw,28px) clamp(22px,4vw,50px);background:linear-gradient(160deg,rgba(0,0,0,0.62) 0%,rgba(20,10,0,0.78) 100%);backdrop-filter:blur(6px);box-shadow:0 0 0 1px rgba(255,215,0,0.08),0 0 60px rgba(0,0,0,0.9),inset 0 0 40px rgba(0,0,0,0.3);text-align:center;max-width:min(94vw,680px)}
+.card-frame::before,.card-frame::after{content:'';position:absolute;width:18px;height:18px;border-color:#ffd700;border-style:solid}
+.card-frame::before{top:-1px;left:-1px;border-width:2px 0 0 2px;border-radius:4px 0 0 0}
+.card-frame::after{bottom:-1px;right:-1px;border-width:0 2px 2px 0;border-radius:0 0 4px 0}
+.cc-tr,.cc-bl{position:absolute;width:18px;height:18px;border-color:#ffd700;border-style:solid}
+.cc-tr{top:-1px;right:-1px;border-width:2px 2px 0 0;border-radius:0 4px 0 0}
+.cc-bl{bottom:-1px;left:-1px;border-width:0 0 2px 2px;border-radius:0 0 0 4px}
+.c-num{font-size:clamp(11px,1.6vw,17px);color:rgba(255,215,0,0.42);letter-spacing:5px;margin-bottom:10px}
+.c-svg{width:clamp(220px,38vw,440px);height:clamp(90px,16vw,180px);margin:0 auto 14px;filter:drop-shadow(0 8px 28px rgba(0,0,0,0.95)) drop-shadow(0 0 20px var(--glow,#ff4400));animation:carFloat 3.4s ease-in-out infinite;display:flex;align-items:center;justify-content:center}
+.c-svg svg{width:100%;height:100%}
+@keyframes carFloat{0%,100%{transform:translateY(0) rotate(-1deg) scale(1)}50%{transform:translateY(-10px) rotate(1deg) scale(1.04)}}
+.c-name{font-size:clamp(24px,4.2vw,56px);color:#ffd700;text-shadow:0 0 25px var(--glow,#ff4400),0 0 50px var(--glow,#ff4400),0 4px 12px #000,3px 3px 0 var(--shadow,#660000);letter-spacing:3px;line-height:1.1}
+.c-rule{width:60%;height:1px;background:linear-gradient(to right,transparent,rgba(255,215,0,0.4),transparent);margin:9px auto}
+.c-sub{font-family:'Georgia',serif;font-size:clamp(11px,1.5vw,18px);color:rgba(255,255,255,0.82);letter-spacing:4px}
+.c-tag{font-family:'Georgia',serif;font-size:clamp(10px,1.1vw,13px);color:rgba(255,200,80,0.58);letter-spacing:2px;margin-top:6px;font-style:italic}
+#progress{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:30;align-items:center}
+.dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.22);transition:all .35s;cursor:pointer;pointer-events:all}
+.dot.active{background:#ffd700;transform:scale(1.5);width:20px;border-radius:4px}
+#trans{position:fixed;inset:0;z-index:50;background:#000;opacity:0;pointer-events:none;transition:opacity .32s ease}
+#trans.flash{opacity:1}
+#badge{position:fixed;top:16px;right:16px;z-index:30;text-align:right;pointer-events:none}
+.bl{font-size:12px;letter-spacing:2px;text-shadow:0 1px 6px #000}
+#counter{position:fixed;top:16px;left:16px;z-index:30;pointer-events:none;font-family:'Georgia',serif;font-size:12px;color:rgba(255,255,255,0.36);letter-spacing:2px;text-shadow:0 1px 4px #000}
+#r66{position:fixed;bottom:48px;right:18px;z-index:30;pointer-events:none}
+#outro{position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;transition:opacity .6s;pointer-events:none;text-align:center;gap:10px}
+#outro.show{opacity:1}
+.o-t{font-size:clamp(34px,6vw,72px);color:#ffd700;text-shadow:0 0 40px #ff6b00,0 5px 12px #000,3px 3px 0 #8b0000;letter-spacing:5px}
+.o-r{width:clamp(140px,25vw,320px);height:2px;background:linear-gradient(to right,transparent,#ffd700,transparent)}
+.o-s{font-family:'Georgia',serif;font-size:clamp(12px,1.8vw,22px);color:#fff;letter-spacing:5px;text-shadow:0 2px 8px #000}
+.o-n{font-size:clamp(52px,9vw,96px);color:#e8722a;text-shadow:0 0 30px #ff6b00,0 4px 10px #000;line-height:1}
+.o-i{font-family:'Georgia',serif;font-size:clamp(10px,1.4vw,15px);color:rgba(255,210,100,0.7);letter-spacing:2px}
+.o-rep{font-family:'Georgia',serif;font-size:12px;color:rgba(255,255,255,0.28);letter-spacing:2px;margin-top:18px;animation:pulse 2s ease-in-out infinite}
+@keyframes fadeUp{from{opacity:0;transform:translateY(50px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:0.3}50%{opacity:0.9}}
 </style>
 </head>
 <body>
 <canvas id="bg"></canvas><canvas id="fx"></canvas>
-<div id="vignette"></div><div id="trans"></div>
+<div id="vig"></div><div id="trans"></div>
 <div id="ui"><div id="intro">
   <div class="t-main">RADIATOR SPRINGS</div>
   <div class="t-div"></div>
@@ -65,17 +65,15 @@ canvas#fx { position:fixed; inset:0; width:100%; height:100%; pointer-events:non
   <div class="t-route">&#9889;&nbsp;DISNEY &middot; PIXAR CARS&nbsp;&#9889;</div>
   <div class="t-hint">CLICK OR TAP TO BEGIN</div>
 </div></div>
-<div id="car-card">
-  <div class="card-frame">
-    <div class="cc-tr"></div><div class="cc-bl"></div>
-    <div class="c-num" id="c-num">01 / 12</div>
-    <div class="c-svg" id="c-svg"></div>
-    <div class="c-name" id="c-name"></div>
-    <div class="c-rule"></div>
-    <div class="c-sub" id="c-sub"></div>
-    <div class="c-tag" id="c-tag"></div>
-  </div>
-</div>
+<div id="car-card"><div class="card-frame">
+  <div class="cc-tr"></div><div class="cc-bl"></div>
+  <div class="c-num" id="c-num">01 / 12</div>
+  <div class="c-svg" id="c-svg"></div>
+  <div class="c-name" id="c-name"></div>
+  <div class="c-rule"></div>
+  <div class="c-sub" id="c-sub"></div>
+  <div class="c-tag" id="c-tag"></div>
+</div></div>
 <div id="outro">
   <div class="o-t">COLLECTION COMPLETE</div><div class="o-r"></div>
   <div class="o-s">RADIATOR SPRINGS &middot; COLLECTOR'S EDITION</div>
@@ -86,302 +84,343 @@ canvas#fx { position:fixed; inset:0; width:100%; height:100%; pointer-events:non
 <div id="progress"></div>
 <div id="badge"><div class="bl" style="color:#ffd700">COLLECTOR'S SHOWCASE</div><div class="bl" style="color:#e8722a;font-size:10px">DISNEY &middot; PIXAR CARS</div></div>
 <div id="counter"></div>
-<div id="r66"><svg width="44" height="52" viewBox="0 0 44 52" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 1L43 10L43 30Q43 46 22 51Q1 46 1 30L1 10Z" fill="#1a1a4e" stroke="#ffd700" stroke-width="2"/><text x="22" y="20" text-anchor="middle" font-family="Impact" font-size="7" fill="#ffd700" letter-spacing="1">ROUTE</text><text x="22" y="34" text-anchor="middle" font-family="Impact" font-size="14" fill="#fff">66</text></svg></div>
+<div id="r66"><svg width="44" height="52" viewBox="0 0 44 52" fill="none"><path d="M22 1L43 10L43 30Q43 46 22 51Q1 46 1 30L1 10Z" fill="#1a1a4e" stroke="#ffd700" stroke-width="2"/><text x="22" y="20" text-anchor="middle" font-family="Impact" font-size="7" fill="#ffd700">ROUTE</text><text x="22" y="34" text-anchor="middle" font-family="Impact" font-size="14" fill="#fff">66</text></svg></div>
 
 <script>
-// ── SVG CHARACTER ILLUSTRATIONS ──────────────────────────────────────────────
+// ═══ Disney/Pixar-quality SVG character illustrations ═══
 
-function carShadow(cx,r){return`<ellipse cx="${cx}" cy="89" rx="${r}" ry="6" fill="rgba(0,0,0,0.45)" filter="url(#sh)"/>`;}
+const D=`<defs>
+<radialGradient id="bd" cx="50%" cy="22%" r="80%"><stop offset="0%" stop-color="var(--c1)"/><stop offset="70%" stop-color="var(--c2)"/><stop offset="100%" stop-color="var(--c3)"/></radialGradient>
+<radialGradient id="ey" cx="34%" cy="28%" r="66%"><stop offset="0%" stop-color="var(--e1)"/><stop offset="55%" stop-color="var(--e2)"/><stop offset="100%" stop-color="var(--e3)"/></radialGradient>
+<filter id="ds"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-opacity="0.38"/></filter>
+<filter id="gs"><feGaussianBlur stdDeviation="4"/></filter>
+</defs>`;
 
-function svgMcQueenRusteze(){
-return`<svg viewBox="0 0 240 95" xmlns="http://www.w3.org/2000/svg"><defs><filter id="sh"><feGaussianBlur stdDeviation="3"/></filter></defs>
-${carShadow(120,84)}
-<path d="M20 65Q16 65 16 58L16 48Q16 40 26 37L46 30Q60 14 88 10L134 9Q162 8 176 20L202 34Q212 39 214 48L215 58Q215 65 208 66Z" fill="#cc1f00"/>
-<path d="M50 34L74 34L62 50L84 50L58 68L76 52L54 52Z" fill="#ffd700" opacity="0.85"/>
-<path d="M72 36Q82 13 110 9L136 8Q162 9 172 23L188 36Z" fill="#aa1800"/>
-<path d="M84 34Q94 12 114 9L134 8Q158 10 168 25L178 34Z" fill="rgba(140,200,255,0.55)"/>
-<ellipse cx="52" cy="22" rx="20" ry="11" fill="#ffd700"/>
-<text x="52" y="26" text-anchor="middle" font-family="Impact" font-size="7" fill="#cc1f00">Rust-eze</text>
-<text x="200" y="61" text-anchor="middle" font-family="Impact" font-size="20" fill="#ffd700">95</text>
-<ellipse cx="104" cy="24" rx="12" ry="13" fill="white"/><ellipse cx="104" cy="25" rx="8" ry="10" fill="#3a8ec4"/><ellipse cx="106" cy="23" rx="3.5" ry="4" fill="#0d2233"/>
-<ellipse cx="140" cy="23" rx="12" ry="13" fill="white"/><ellipse cx="140" cy="24" rx="8" ry="10" fill="#3a8ec4"/><ellipse cx="142" cy="22" rx="3.5" ry="4" fill="#0d2233"/>
-<path d="M94 12Q104 9 114 12" fill="none" stroke="#aa1800" stroke-width="2.5" stroke-linecap="round"/>
-<path d="M130 11Q140 8 150 11" fill="none" stroke="#aa1800" stroke-width="2.5" stroke-linecap="round"/>
-<path d="M108 38Q122 48 136 38" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2.5" stroke-linecap="round"/>
-<circle cx="52" cy="67" r="17" fill="#111"/><circle cx="52" cy="67" r="10" fill="#1a1a1a"/><circle cx="52" cy="67" r="4" fill="#555"/>
-<circle cx="178" cy="67" r="17" fill="#111"/><circle cx="178" cy="67" r="10" fill="#1a1a1a"/><circle cx="178" cy="67" r="4" fill="#555"/>
-</svg>`;}
+// eye(cx,cy,rx,ry) → Disney-style eye SVG string (uses #ey gradient)
+function eye(cx,cy,rx,ry,lidFill){
+  const lx=rx*0.7,ly=ry*0.78,px=rx*0.33,py=ry*0.4;
+  return `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="white"/>
+<ellipse cx="${cx}" cy="${cy+1}" rx="${lx}" ry="${ly}" fill="url(#ey)"/>
+<ellipse cx="${cx+2}" cy="${cy-1}" rx="${px}" ry="${py}" fill="#0d1e33"/>
+<circle cx="${cx+rx*0.26}" cy="${cy-ry*0.28}" r="${Math.max(2,rx*0.18)}" fill="rgba(255,255,255,0.9)"/>
+<path d="M${cx-rx} ${cy-ry*0.15} C${cx-rx*0.4} ${cy-ry*1.35} ${cx+rx*0.4} ${cy-ry*1.35} ${cx+rx} ${cy-ry*0.15} L${cx+rx} ${cy-ry*0.5} C${cx+rx*0.4} ${cy-ry*1.6} ${cx-rx*0.4} ${cy-ry*1.6} ${cx-rx} ${cy-ry*0.5} Z" fill="${lidFill}" opacity="0.7"/>`;
+}
 
+function wheel(cx,cy,r){
+  return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#111"/><circle cx="${cx}" cy="${cy}" r="${r*0.67}" fill="#181818"/><circle cx="${cx}" cy="${cy}" r="${r*0.36}" fill="#242424"/><circle cx="${cx}" cy="${cy}" r="${r*0.18}" fill="#444"/><circle cx="${cx-r*0.22}" cy="${cy-r*0.22}" r="${r*0.1}" fill="rgba(255,255,255,0.1)"/>`;
+}
+
+function shadow(cx,rx){
+  return `<ellipse cx="${cx}" cy="109" rx="${rx}" ry="7" fill="rgba(0,0,0,0.32)" filter="url(#gs)"/>`;
+}
+
+// ─── 1. LIGHTNING McQUEEN (Rust-eze) ───────────────────────────────────────────
+function svgMcQueen(){
+return `<svg viewBox="0 0 300 115" xmlns="http://www.w3.org/2000/svg" style="--c1:#ff5040;--c2:#cc1f00;--c3:#7a0000;--e1:#9ad4f5;--e2:#3a8ec4;--e3:#1a5080">
+${D}${shadow(148,112)}
+<path d="M22 78C16 78 14 70 14 62L14 50C14 40 26 36 42 30L70 22C86 8 114 4 148 3L180 3C210 3 236 12 254 26L276 42C286 48 288 56 288 64L288 75C288 80 282 80 276 80Z" fill="url(#bd)" filter="url(#ds)"/>
+<path d="M38 34C90 26 190 24 262 34" fill="none" stroke="rgba(255,140,80,0.28)" stroke-width="16" stroke-linecap="round"/>
+<path d="M52 32L78 32L62 52L88 52L60 78L80 58L54 58Z" fill="#ffd700" opacity="0.94"/>
+<path d="M98 36C113 10 146 3 176 3L204 3C232 4 252 16 266 34L280 38Z" fill="#7a0000" opacity="0.68"/>
+<path d="M112 34C126 8 152 3 176 3L202 3C228 5 246 18 258 34L266 36Z" fill="#b0ddf8" opacity="0.72"/>
+<path d="M116 28C130 8 154 4 176 4L198 4C218 6 234 17 242 28Z" fill="rgba(255,255,255,0.2)"/>
+<ellipse cx="68" cy="22" rx="28" ry="15" fill="#ffc800"/><ellipse cx="68" cy="22" rx="24" ry="12" fill="#e8a800"/>
+<text x="68" y="18" text-anchor="middle" font-family="Impact" font-size="9" fill="#aa1800">Rust-eze</text>
+<text x="68" y="28" text-anchor="middle" font-family="Arial" font-size="5" fill="#883300" letter-spacing="0.5">RACING CENTER</text>
+<text x="36" y="72" text-anchor="middle" font-family="Impact" font-size="28" fill="#ffd700">95</text>
+${eye(152,24,17,18,'#7a0000')}
+${eye(232,22,17,18,'#7a0000')}
+<path d="M136 11C149 4 174 7 174 16" fill="none" stroke="#5a0000" stroke-width="3" stroke-linecap="round"/>
+<path d="M216 9C229 2 254 5 254 14" fill="none" stroke="#5a0000" stroke-width="3" stroke-linecap="round"/>
+<path d="M148 42C172 56 204 56 224 42" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="3.5" stroke-linecap="round"/>
+${wheel(66,82,22)}${wheel(232,82,22)}
+</svg>`;
+}
+
+// ─── 2. MATER ──────────────────────────────────────────────────────────────────
 function svgMater(){
-return`<svg viewBox="0 0 220 100" xmlns="http://www.w3.org/2000/svg"><defs><filter id="sh"><feGaussianBlur stdDeviation="3"/></filter></defs>
-${carShadow(100,72)}
-<line x1="148" y1="34" x2="202" y2="16" stroke="#666" stroke-width="6" stroke-linecap="round"/>
-<path d="M202 16Q210 10 207 22" fill="none" stroke="#666" stroke-width="4" stroke-linecap="round"/>
-<line x1="202" y1="22" x2="194" y2="40" stroke="#aaa" stroke-width="2" stroke-dasharray="3,2"/>
-<path d="M14 70Q10 70 10 62L10 50Q10 40 20 36L40 28Q52 14 78 12L116 11Q140 12 152 24L164 38Q170 42 170 52L170 65Q170 70 164 70Z" fill="#8b5e2a"/>
-<ellipse cx="60" cy="50" rx="14" ry="10" fill="#6b3e15" opacity="0.5"/>
-<ellipse cx="130" cy="55" rx="10" ry="7" fill="#6b3e15" opacity="0.4"/>
-<path d="M44 36Q54 14 80 11L114 10Q136 12 148 26L154 36Z" fill="#6b3e15"/>
-<path d="M54 34Q64 14 82 11L112 10Q132 12 142 28L148 34Z" fill="rgba(150,200,180,0.4)"/>
-<rect x="104" y="36" width="52" height="26" rx="2" fill="#5a3010" opacity="0.8"/>
-<ellipse cx="80" cy="24" rx="12" ry="13" fill="white"/><ellipse cx="80" cy="25" rx="8" ry="10" fill="#8dc430"/><ellipse cx="82" cy="23" rx="3.5" ry="4" fill="#1a2a05"/>
-<ellipse cx="114" cy="24" rx="12" ry="13" fill="white"/><ellipse cx="114" cy="25" rx="8" ry="10" fill="#8dc430"/><ellipse cx="116" cy="23" rx="3.5" ry="4" fill="#1a2a05"/>
-<path d="M70 13Q80 10 90 13" fill="none" stroke="#5a3010" stroke-width="3" stroke-linecap="round"/>
-<path d="M104 13Q114 10 124 13" fill="none" stroke="#5a3010" stroke-width="3" stroke-linecap="round"/>
-<rect x="90" y="38" width="10" height="8" rx="1" fill="white" opacity="0.75"/>
-<rect x="102" y="38" width="8" height="8" rx="1" fill="white" opacity="0.75"/>
+return `<svg viewBox="0 0 280 115" xmlns="http://www.w3.org/2000/svg" style="--c1:#b07840;--c2:#8b5e2a;--c3:#4a2e0a;--e1:#b0e060;--e2:#8dc430;--e3:#4a7010">
+${D}${shadow(110,108)}
+<line x1="152" y1="34" x2="208" y2="14" stroke="#777" stroke-width="6" stroke-linecap="round"/>
+<path d="M208 14Q218 8 214 22" fill="none" stroke="#777" stroke-width="4" stroke-linecap="round"/>
+<line x1="208" y1="22" x2="200" y2="40" stroke="#aaa" stroke-width="2" stroke-dasharray="3,2"/>
+<path d="M14 70Q10 70 10 62L10 50Q10 40 20 36L40 28Q52 14 78 12L116 11Q140 12 152 24L164 38Q170 42 170 52L170 65Q170 70 164 70Z" fill="url(#bd)" filter="url(#ds)"/>
+<ellipse cx="60" cy="50" rx="15" ry="11" fill="#5a3010" opacity="0.52"/>
+<ellipse cx="132" cy="56" rx="11" ry="8" fill="#5a3010" opacity="0.42"/>
+<ellipse cx="96" cy="40" rx="8" ry="6" fill="#5a3010" opacity="0.35"/>
+<path d="M44 36Q54 14 80 11L114 10Q136 12 148 26L154 36Z" fill="#5a3010" opacity="0.6"/>
+<path d="M54 34Q64 14 82 11L112 10Q132 12 142 28L148 34Z" fill="#90c8a8" opacity="0.45"/>
+<path d="M58 30C68 12 84 10 110 10" fill="none" stroke="rgba(200,230,200,0.2)" stroke-width="10"/>
+<rect x="106" y="36" width="52" height="26" rx="3" fill="#4a2e0a" opacity="0.75"/>
+${eye(80,24,12,13,'#5a3010')}
+${eye(114,24,12,13,'#5a3010')}
+<path d="M70 13Q80 10 90 13" fill="none" stroke="#4a2e0a" stroke-width="2.5" stroke-linecap="round"/>
+<path d="M104 13Q114 10 124 13" fill="none" stroke="#4a2e0a" stroke-width="2.5" stroke-linecap="round"/>
+<rect x="90" y="38" width="10" height="8" rx="1.5" fill="white" opacity="0.78"/>
+<rect x="102" y="38" width="8" height="8" rx="1.5" fill="white" opacity="0.78"/>
 <line x1="100" y1="38" x2="100" y2="46" stroke="rgba(0,0,0,0.3)" stroke-width="1"/>
-<path d="M84 38Q97 50 110 38" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
-<circle cx="38" cy="72" r="16" fill="#111"/><circle cx="38" cy="72" r="9" fill="#1a1a1a"/><circle cx="38" cy="72" r="4" fill="#444"/>
-<circle cx="148" cy="72" r="16" fill="#111"/><circle cx="148" cy="72" r="9" fill="#1a1a1a"/><circle cx="148" cy="72" r="4" fill="#444"/>
-</svg>`;}
+<path d="M84 38Q97 50 110 38" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="1.5"/>
+${wheel(38,72,16)}${wheel(148,72,16)}
+</svg>`;
+}
 
+// ─── 3. MACK ───────────────────────────────────────────────────────────────────
 function svgMack(){
-return`<svg viewBox="0 0 290 100" xmlns="http://www.w3.org/2000/svg"><defs><filter id="sh"><feGaussianBlur stdDeviation="3"/></filter></defs>
-<ellipse cx="145" cy="93" rx="112" ry="6" fill="rgba(0,0,0,0.45)" filter="url(#sh)"/>
-<rect x="82" y="20" width="196" height="58" rx="5" fill="#1a4fa0"/>
-<rect x="84" y="22" width="192" height="10" fill="rgba(255,255,255,0.1)" rx="2"/>
-<ellipse cx="178" cy="52" rx="40" ry="22" fill="#e87a18" opacity="0.9"/>
-<text x="178" y="48" text-anchor="middle" font-family="Impact" font-size="10" fill="#1a4fa0">Rust-eze</text>
-<text x="178" y="62" text-anchor="middle" font-family="Impact" font-size="8" fill="white" opacity="0.7">RACING</text>
-<rect x="232" y="24" width="44" height="52" rx="2" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
-<path d="M8 78L8 34Q8 22 22 20L80 18L80 78Z" fill="#1a4fa0"/>
-<path d="M8 34L60 32L80 34" fill="#1560c0"/>
-<path d="M12 50L12 32Q14 24 24 22L74 20L76 50Z" fill="rgba(150,200,255,0.4)"/>
-<rect x="8" y="56" width="22" height="22" rx="2" fill="#888"/>
-<line x1="11" y1="59" x2="27" y2="59" stroke="#bbb" stroke-width="1.5"/>
-<line x1="11" y1="63" x2="27" y2="63" stroke="#bbb" stroke-width="1.5"/>
-<line x1="11" y1="67" x2="27" y2="67" stroke="#bbb" stroke-width="1.5"/>
-<line x1="11" y1="71" x2="27" y2="71" stroke="#bbb" stroke-width="1.5"/>
-<line x1="17" y1="56" x2="17" y2="78" stroke="#aaa" stroke-width="1"/><line x1="21" y1="56" x2="21" y2="78" stroke="#aaa" stroke-width="1"/>
-<rect x="68" y="7" width="5" height="15" rx="2" fill="#888"/><rect x="75" y="9" width="5" height="13" rx="2" fill="#888"/>
-<ellipse cx="30" cy="36" rx="11" ry="12" fill="white"/><ellipse cx="30" cy="37" rx="7" ry="9" fill="#3a8ec4"/><ellipse cx="32" cy="35" rx="3" ry="3.5" fill="#0d2233"/>
-<ellipse cx="54" cy="36" rx="11" ry="12" fill="white"/><ellipse cx="54" cy="37" rx="7" ry="9" fill="#3a8ec4"/><ellipse cx="56" cy="35" rx="3" ry="3.5" fill="#0d2233"/>
-<circle cx="26" cy="80" r="14" fill="#111"/><circle cx="26" cy="80" r="8" fill="#1a1a1a"/><circle cx="26" cy="80" r="3" fill="#444"/>
-<circle cx="112" cy="80" r="14" fill="#111"/><circle cx="112" cy="80" r="8" fill="#1a1a1a"/>
-<circle cx="142" cy="80" r="14" fill="#111"/><circle cx="142" cy="80" r="8" fill="#1a1a1a"/>
-<circle cx="216" cy="80" r="14" fill="#111"/><circle cx="216" cy="80" r="8" fill="#1a1a1a"/>
-<circle cx="248" cy="80" r="14" fill="#111"/><circle cx="248" cy="80" r="8" fill="#1a1a1a"/>
-</svg>`;}
+return `<svg viewBox="0 0 340 115" xmlns="http://www.w3.org/2000/svg" style="--c1:#2a6ad0;--c2:#1a4fa0;--c3:#0a2860;--e1:#9ad4f5;--e2:#3a8ec4;--e3:#1a5080">
+${D}
+<ellipse cx="170" cy="109" rx="136" ry="7" fill="rgba(0,0,0,0.32)" filter="url(#gs)"/>
+<rect x="86" y="18" width="240" height="66" rx="6" fill="url(#bd)"/>
+<rect x="88" y="20" width="236" height="12" fill="rgba(255,255,255,0.1)" rx="3"/>
+<rect x="88" y="20" width="236" height="64" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1" rx="5"/>
+<ellipse cx="204" cy="53" rx="46" ry="26" fill="#e87820" opacity="0.95"/>
+<ellipse cx="204" cy="53" rx="42" ry="22" fill="#d06010" opacity="0.9"/>
+<text x="204" y="48" text-anchor="middle" font-family="Impact" font-size="11" fill="white">Rust-eze</text>
+<text x="204" y="62" text-anchor="middle" font-family="Arial" font-size="7" fill="rgba(255,255,255,0.8)" letter-spacing="1">RACING</text>
+<rect x="278" y="22" width="46" height="60" rx="2" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="1.5"/>
+<path d="M8 80L8 34Q8 22 22 20L84 18L84 80Z" fill="url(#bd)" filter="url(#ds)"/>
+<path d="M10 34L58 32L84 36" fill="rgba(255,255,255,0.1)"/>
+<path d="M12 52L12 32Q14 24 24 22L80 20L80 52Z" fill="rgba(180,210,255,0.38)"/>
+<path d="M14 50L14 34C16 28 22 24 78 22L78 34C34 32 18 34 14 50Z" fill="rgba(255,255,255,0.15)"/>
+<rect x="8" y="56" width="24" height="24" rx="2" fill="#888"/>
+<line x1="11" y1="60" x2="29" y2="60" stroke="#bbb" stroke-width="1.5"/><line x1="11" y1="65" x2="29" y2="65" stroke="#bbb" stroke-width="1.5"/><line x1="11" y1="70" x2="29" y2="70" stroke="#bbb" stroke-width="1.5"/><line x1="17" y1="56" x2="17" y2="80" stroke="#aaa" stroke-width="1"/><line x1="22" y1="56" x2="22" y2="80" stroke="#aaa" stroke-width="1"/>
+<rect x="70" y="6" width="5" height="15" rx="2" fill="#999"/><rect x="77" y="8" width="5" height="13" rx="2" fill="#999"/>
+${eye(30,36,11,12,'#0a2860')}${eye(54,36,11,12,'#0a2860')}
+${wheel(26,82,15)}${wheel(116,82,15)}${wheel(146,82,15)}${wheel(262,82,15)}${wheel(294,82,15)}
+</svg>`;
+}
 
+// ─── 4. RED (fire truck) ────────────────────────────────────────────────────────
 function svgRed(){
-return`<svg viewBox="0 0 200 110" xmlns="http://www.w3.org/2000/svg"><defs><filter id="sh"><feGaussianBlur stdDeviation="3"/></filter></defs>
-<ellipse cx="100" cy="102" rx="72" ry="6" fill="rgba(0,0,0,0.45)" filter="url(#sh)"/>
-<path d="M18 78Q12 78 12 70L12 52Q12 40 24 36L56 28Q64 16 82 14L118 14Q136 14 148 24L164 36Q172 42 172 54L172 72Q172 78 166 78Z" fill="#cc1800"/>
-<rect x="40" y="9" width="102" height="6" rx="2" fill="#ccc"/>
-<rect x="44" y="3" width="94" height="5" rx="2" fill="#bbb"/>
-<line x1="60" y1="3" x2="60" y2="15" stroke="#aaa" stroke-width="2"/><line x1="82" y1="3" x2="82" y2="15" stroke="#aaa" stroke-width="2"/>
-<line x1="104" y1="3" x2="104" y2="15" stroke="#aaa" stroke-width="2"/><line x1="126" y1="3" x2="126" y2="15" stroke="#aaa" stroke-width="2"/>
-<rect x="82" y="1" width="28" height="7" rx="3" fill="#ccc"/>
-<rect x="84" y="2" width="10" height="5" rx="2" fill="#e22"/>
-<path d="M56 36Q66 16 86 14L116 13Q134 14 146 26L158 36Z" fill="#aa1500"/>
-<path d="M68 34Q78 16 90 14L114 13Q132 15 142 28L150 34Z" fill="rgba(140,200,255,0.5)"/>
-<ellipse cx="92" cy="25" rx="13" ry="14" fill="white"/><ellipse cx="92" cy="26" rx="9" ry="11" fill="#3a8ec4"/><ellipse cx="94" cy="24" rx="4" ry="4.5" fill="#0d2233"/>
-<ellipse cx="128" cy="25" rx="13" ry="14" fill="white"/><ellipse cx="128" cy="26" rx="9" ry="11" fill="#3a8ec4"/><ellipse cx="130" cy="24" rx="4" ry="4.5" fill="#0d2233"/>
-<path d="M80 12Q92 8 104 12" fill="none" stroke="#aa1500" stroke-width="3" stroke-linecap="round"/>
-<path d="M116 11Q128 7 140 11" fill="none" stroke="#aa1500" stroke-width="3" stroke-linecap="round"/>
-<circle cx="44" cy="80" r="17" fill="#111"/><circle cx="44" cy="80" r="10" fill="#1a1a1a"/><circle cx="44" cy="80" r="4" fill="#555"/>
-<circle cx="150" cy="80" r="17" fill="#111"/><circle cx="150" cy="80" r="10" fill="#1a1a1a"/><circle cx="150" cy="80" r="4" fill="#555"/>
-</svg>`;}
+return `<svg viewBox="0 0 240 120" xmlns="http://www.w3.org/2000/svg" style="--c1:#ff3a20;--c2:#cc1800;--c3:#8a0000;--e1:#9ad4f5;--e2:#3a8ec4;--e3:#1a5080">
+${D}${shadow(120,113)}
+<path d="M18 80Q12 80 12 72L12 54Q12 42 24 38L58 30Q66 16 84 14L118 14Q138 14 150 24L166 38Q174 44 174 56L174 74Q174 80 168 80Z" fill="url(#bd)" filter="url(#ds)"/>
+<path d="M20 44C40 36 140 34 168 42" fill="none" stroke="rgba(255,160,100,0.25)" stroke-width="14" stroke-linecap="round"/>
+<rect x="38" y="8" width="108" height="7" rx="2.5" fill="#ccc"/>
+<rect x="42" y="2" width="100" height="6" rx="2" fill="#bbb"/>
+<line x1="58" y1="2" x2="58" y2="15" stroke="#aaa" stroke-width="2"/><line x1="80" y1="2" x2="80" y2="15" stroke="#aaa" stroke-width="2"/><line x1="102" y1="2" x2="102" y2="15" stroke="#aaa" stroke-width="2"/><line x1="124" y1="2" x2="124" y2="15" stroke="#aaa" stroke-width="2"/>
+<rect x="80" y="1" width="32" height="8" rx="3" fill="#ccc"/>
+<rect x="82" y="2" width="13" height="6" rx="2" fill="#e22"/><rect x="97" y="2" width="13" height="6" rx="2" fill="#eee"/>
+<path d="M56 38Q66 16 86 14L116 13Q136 14 148 28L158 38Z" fill="#8a0000" opacity="0.7"/>
+<path d="M68 36Q78 16 90 14L114 13Q132 16 142 30L150 36Z" fill="#a0d8f8" opacity="0.68"/>
+<path d="M72 32C80 14 92 12 114 12" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="10"/>
+<ellipse cx="22" cy="62" rx="8" ry="7" fill="#ffe" opacity="0.7"/><ellipse cx="22" cy="62" rx="5" ry="4" fill="white"/>
+${eye(94,26,14,15,'#8a0000')}${eye(130,26,14,15,'#8a0000')}
+<path d="M80 12Q94 6 108 12" fill="none" stroke="#6a0000" stroke-width="3" stroke-linecap="round"/>
+<path d="M116 11Q130 5 144 11" fill="none" stroke="#6a0000" stroke-width="3" stroke-linecap="round"/>
+${wheel(44,82,18)}${wheel(152,82,18)}
+</svg>`;
+}
 
-function svgChickHicks(){
-return`<svg viewBox="0 0 240 95" xmlns="http://www.w3.org/2000/svg"><defs><filter id="sh"><feGaussianBlur stdDeviation="3"/></filter></defs>
-${carShadow(120,84)}
-<path d="M22 64Q18 64 18 56L18 46Q18 38 28 35L54 28Q66 14 94 10L140 9Q168 9 182 22L206 36Q216 40 218 48L220 58Q220 64 214 65Z" fill="#1a6e1a"/>
-<path d="M76 34Q86 12 112 9L142 8Q168 10 178 25L194 34Z" fill="#155515"/>
-<path d="M88 32Q98 11 116 9L140 8Q164 11 172 26L182 32Z" fill="rgba(100,180,100,0.4)"/>
-<rect x="16" y="50" width="200" height="5" fill="#ffd700" opacity="0.18"/>
-<text x="52" y="57" text-anchor="middle" font-family="Impact" font-size="11" fill="#ffd700">THUNDER</text>
-<text x="206" y="63" text-anchor="middle" font-family="Impact" font-size="24" fill="#ffd700">86</text>
-<ellipse cx="106" cy="24" rx="12" ry="11" fill="white"/><ellipse cx="106" cy="25" rx="8" ry="7.5" fill="#2a6a2a"/><ellipse cx="108" cy="24" rx="3.5" ry="3" fill="#060e06"/>
-<polygon points="95,18 118,23 118,18" fill="#155515"/>
-<ellipse cx="140" cy="24" rx="12" ry="11" fill="white"/><ellipse cx="140" cy="25" rx="8" ry="7.5" fill="#2a6a2a"/><ellipse cx="142" cy="24" rx="3.5" ry="3" fill="#060e06"/>
-<polygon points="129,18 152,23 152,18" fill="#155515"/>
-<line x1="94" y1="15" x2="118" y2="20" stroke="#ffd700" stroke-width="3.5" stroke-linecap="round"/>
-<line x1="128" y1="20" x2="152" y2="15" stroke="#ffd700" stroke-width="3.5" stroke-linecap="round"/>
-<circle cx="54" cy="66" r="16" fill="#111"/><circle cx="54" cy="66" r="10" fill="#1a1a1a"/><circle cx="54" cy="66" r="4" fill="#444"/>
-<circle cx="182" cy="66" r="16" fill="#111"/><circle cx="182" cy="66" r="10" fill="#1a1a1a"/><circle cx="182" cy="66" r="4" fill="#444"/>
-</svg>`;}
+// ─── 5. CHICK HICKS ────────────────────────────────────────────────────────────
+function svgChick(){
+return `<svg viewBox="0 0 300 115" xmlns="http://www.w3.org/2000/svg" style="--c1:#34a034;--c2:#1a6e1a;--c3:#0a3a0a;--e1:#60b060;--e2:#2a7a2a;--e3:#103010">
+${D}${shadow(148,108)}
+<path d="M22 78C16 78 14 70 14 62L14 50C14 40 26 36 42 30L70 22C88 8 116 4 150 3L182 3C210 3 238 12 256 26L278 42C288 48 290 56 290 64L290 75C290 80 284 80 278 80Z" fill="url(#bd)" filter="url(#ds)"/>
+<path d="M38 34C90 26 190 24 262 34" fill="none" stroke="rgba(80,180,80,0.22)" stroke-width="14" stroke-linecap="round"/>
+<path d="M98 36C113 10 146 3 176 3L204 3C232 4 252 16 266 34L280 38Z" fill="#0a3a0a" opacity="0.72"/>
+<path d="M112 34C126 8 152 3 176 3L202 3C228 5 246 18 258 34L266 36Z" fill="#80b880" opacity="0.38"/>
+<rect x="14" y="50" width="274" height="5" fill="#ffd700" opacity="0.2"/>
+<text x="52" y="60" text-anchor="middle" font-family="Impact" font-size="12" fill="#ffd700" opacity="0.95">THUNDER</text>
+<text x="272" y="62" text-anchor="middle" font-family="Impact" font-size="26" fill="#ffd700">86</text>
+${eye(152,24,17,18,'#0a3a0a')}${eye(232,22,17,18,'#0a3a0a')}
+<polygon points="136,16 174,23 174,16" fill="#0a3a0a" opacity="0.85"/>
+<polygon points="216,14 254,21 254,14" fill="#0a3a0a" opacity="0.85"/>
+<line x1="136" y1="13" x2="174" y2="20" stroke="#ffd700" stroke-width="3.5" stroke-linecap="round"/>
+<line x1="216" y1="11" x2="254" y2="18" stroke="#ffd700" stroke-width="3.5" stroke-linecap="round"/>
+<path d="M148 42C164 34 184 34 198 42" fill="none" stroke="rgba(200,200,200,0.25)" stroke-width="3" stroke-linecap="round"/>
+${wheel(66,82,22)}${wheel(232,82,22)}
+</svg>`;
+}
 
+// ─── 6. SHERIFF ────────────────────────────────────────────────────────────────
 function svgSheriff(){
-return`<svg viewBox="0 0 220 95" xmlns="http://www.w3.org/2000/svg"><defs><filter id="sh"><feGaussianBlur stdDeviation="3"/></filter></defs>
-${carShadow(110,76)}
-<path d="M20 65Q16 65 16 58L16 50Q16 42 28 38L54 30Q66 14 94 10L130 9Q158 9 172 22L196 38Q206 42 208 52L208 60Q208 66 202 66Z" fill="#111"/>
-<path d="M16 52Q60 56 208 52" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="5"/>
-<path d="M196 38L212 26L210 50Z" fill="#222"/>
-<rect x="196" y="58" width="14" height="6" rx="2" fill="#999"/>
-<rect x="12" y="58" width="16" height="6" rx="2" fill="#999"/>
-<path d="M68 36Q78 12 102 9L128 8Q152 9 164 24L176 36Z" fill="#1a1a1a"/>
-<path d="M80 34Q90 12 106 9L126 8Q148 10 158 26L168 34Z" fill="rgba(140,180,200,0.35)"/>
-<rect x="80" y="5" width="44" height="8" rx="3" fill="#333"/>
-<rect x="82" y="6" width="18" height="6" rx="2" fill="#e33"/>
-<rect x="104" y="6" width="18" height="6" rx="2" fill="#33e"/>
-<text x="58" y="58" text-anchor="middle" font-size="20" fill="#ffd700" opacity="0.9">&#10022;</text>
-<text x="128" y="57" text-anchor="middle" font-family="Impact" font-size="9" fill="rgba(255,255,255,0.65)" letter-spacing="1">SHERIFF</text>
-<ellipse cx="100" cy="25" rx="11" ry="12" fill="white"/><ellipse cx="100" cy="26" rx="7" ry="9" fill="#3a6a9a"/><ellipse cx="102" cy="24" rx="3" ry="3.5" fill="#0a1520"/>
-<ellipse cx="134" cy="25" rx="11" ry="12" fill="white"/><ellipse cx="134" cy="26" rx="7" ry="9" fill="#3a6a9a"/><ellipse cx="136" cy="24" rx="3" ry="3.5" fill="#0a1520"/>
-<line x1="90" y1="14" x2="111" y2="18" stroke="#555" stroke-width="3.5" stroke-linecap="round"/>
-<line x1="123" y1="18" x2="144" y2="14" stroke="#555" stroke-width="3.5" stroke-linecap="round"/>
-<circle cx="48" cy="67" r="15" fill="#111"/><circle cx="48" cy="67" r="9" fill="#1a1a1a"/><circle cx="48" cy="67" r="4" fill="#444"/>
-<circle cx="172" cy="67" r="15" fill="#111"/><circle cx="172" cy="67" r="9" fill="#1a1a1a"/><circle cx="172" cy="67" r="4" fill="#444"/>
-</svg>`;}
+return `<svg viewBox="0 0 280 110" xmlns="http://www.w3.org/2000/svg" style="--c1:#2a2a2a;--c2:#111;--c3:#000;--e1:#6080b0;--e2:#3a6a9a;--e3:#1a3060">
+${D}${shadow(138,103)}
+<path d="M20 66Q14 66 14 58L14 50Q14 42 26 38L54 30Q66 14 94 10L130 9Q158 9 172 22L196 38Q206 42 208 52L208 60Q208 66 202 66Z" fill="url(#bd)" filter="url(#ds)"/>
+<path d="M20 54Q80 58 208 54" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="6"/>
+<path d="M196 38L215 26L214 50Z" fill="#1a1a1a"/>
+<rect x="196" y="58" width="14" height="7" rx="2.5" fill="#aaa"/>
+<rect x="12" y="58" width="16" height="7" rx="2.5" fill="#aaa"/>
+<path d="M68 36Q78 12 102 9L128 8Q152 9 164 24L176 36Z" fill="#050505" opacity="0.8"/>
+<path d="M80 34Q90 12 106 9L126 8Q148 10 158 26L168 34Z" fill="#8090a8" opacity="0.4"/>
+<rect x="80" y="5" width="48" height="8" rx="3" fill="#222"/>
+<rect x="82" y="6" width="20" height="6" rx="2" fill="#e44"/>
+<rect x="106" y="6" width="20" height="6" rx="2" fill="#44f"/>
+<text x="58" y="59" text-anchor="middle" font-size="22" fill="#ffd700" opacity="0.92">&#10022;</text>
+<text x="128" y="58" text-anchor="middle" font-family="Impact" font-size="9" fill="rgba(255,255,255,0.6)" letter-spacing="1">SHERIFF</text>
+${eye(100,25,11,12,'#050505')}${eye(134,25,11,12,'#050505')}
+<line x1="90" y1="14" x2="111" y2="19" stroke="#444" stroke-width="3.5" stroke-linecap="round"/>
+<line x1="123" y1="19" x2="144" y2="14" stroke="#444" stroke-width="3.5" stroke-linecap="round"/>
+${wheel(48,68,16)}${wheel(172,68,16)}
+</svg>`;
+}
 
-function svgTheKing(){
-return`<svg viewBox="0 0 240 100" xmlns="http://www.w3.org/2000/svg"><defs><filter id="sh"><feGaussianBlur stdDeviation="3"/></filter></defs>
-${carShadow(120,84)}
-<path d="M22 70Q18 70 18 62L18 50Q18 40 28 36L54 26Q66 10 96 8L140 7Q170 7 184 20L208 36Q218 42 220 52L220 64Q220 70 214 70Z" fill="#0055aa"/>
-<path d="M68 8L96 8L60 44L34 44Z" fill="white" opacity="0.2"/>
-<text x="130" y="63" text-anchor="middle" font-family="Impact" font-size="11" fill="white" opacity="0.85" letter-spacing="1">D.I.N.O.C.O.</text>
-<text x="208" y="66" text-anchor="middle" font-family="Impact" font-size="22" fill="white">43</text>
-<path d="M78 34Q88 10 114 8L140 7Q166 8 176 22L192 34Z" fill="#003e88"/>
-<path d="M90 32Q100 9 118 8L138 7Q162 9 172 24L180 32Z" fill="rgba(150,200,255,0.45)"/>
-<ellipse cx="110" cy="23" rx="12" ry="13" fill="white"/><ellipse cx="110" cy="24" rx="8" ry="10" fill="#3a8ec4"/><ellipse cx="112" cy="22" rx="3.5" ry="4" fill="#0d2233"/>
-<ellipse cx="146" cy="23" rx="12" ry="13" fill="white"/><ellipse cx="146" cy="24" rx="8" ry="10" fill="#3a8ec4"/><ellipse cx="148" cy="22" rx="3.5" ry="4" fill="#0d2233"/>
-<path d="M100 12Q110 9 120 12" fill="none" stroke="#003e88" stroke-width="2.5" stroke-linecap="round"/>
-<path d="M136 12Q146 9 156 12" fill="none" stroke="#003e88" stroke-width="2.5" stroke-linecap="round"/>
-<path d="M114 36Q128 46 142 36" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-linecap="round"/>
-<circle cx="54" cy="72" r="17" fill="#111"/><circle cx="54" cy="72" r="10" fill="#1a1a1a"/><circle cx="54" cy="72" r="4" fill="#444"/>
-<circle cx="186" cy="72" r="17" fill="#111"/><circle cx="186" cy="72" r="10" fill="#1a1a1a"/><circle cx="186" cy="72" r="4" fill="#444"/>
-</svg>`;}
+// ─── 7. THE KING (#43 Dinoco) ──────────────────────────────────────────────────
+function svgKing(){
+return `<svg viewBox="0 0 300 115" xmlns="http://www.w3.org/2000/svg" style="--c1:#2080e0;--c2:#0055aa;--c3:#002266;--e1:#9ad4f5;--e2:#3a8ec4;--e3:#1a5080">
+${D}${shadow(148,108)}
+<path d="M22 72Q16 72 16 64L16 50Q16 40 28 36L54 26Q68 10 98 8L142 7Q172 7 186 20L210 36Q220 42 222 52L222 64Q222 72 216 72Z" fill="url(#bd)" filter="url(#ds)"/>
+<path d="M66 8L96 8L58 46L30 46Z" fill="white" opacity="0.22"/>
+<path d="M68 8L94 8L60 44L36 44Z" fill="rgba(255,255,255,0.12)"/>
+<text x="132" y="64" text-anchor="middle" font-family="Impact" font-size="11" fill="white" opacity="0.88" letter-spacing="1">D.I.N.O.C.O.</text>
+<text x="208" y="67" text-anchor="middle" font-family="Impact" font-size="24" fill="white">43</text>
+<path d="M80 34Q90 10 116 8L142 7Q168 8 178 22L194 34Z" fill="#002266" opacity="0.68"/>
+<path d="M92 32Q102 9 120 8L140 7Q164 9 174 24L182 32Z" fill="#b0ddf8" opacity="0.65"/>
+<path d="M96 28C108 8 122 6 140 6" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="10"/>
+${eye(110,23,13,14,'#002266')}${eye(162,21,13,14,'#002266')}
+<path d="M98 12Q110 6 122 12" fill="none" stroke="#001a55" stroke-width="2.5" stroke-linecap="round"/>
+<path d="M150 10Q162 4 174 10" fill="none" stroke="#001a55" stroke-width="2.5" stroke-linecap="round"/>
+<path d="M112 36Q136 48 158 36" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="3" stroke-linecap="round"/>
+${wheel(54,74,18)}${wheel(188,74,18)}
+</svg>`;
+}
 
-function svgMcQueenGRC(){
-return`<svg viewBox="0 0 240 95" xmlns="http://www.w3.org/2000/svg"><defs><filter id="sh"><feGaussianBlur stdDeviation="3"/></filter></defs>
-${carShadow(120,84)}
-<path d="M20 64Q16 64 16 57L16 47Q16 39 26 36L46 29Q60 13 88 9L134 8Q162 7 176 19L202 33Q212 38 214 47L215 57Q215 64 208 65Z" fill="#880000"/>
-<path d="M46 40L46 64L104 64L104 40Z" fill="#111" opacity="0.55"/>
-<path d="M160 38L214 38L214 62L160 62Z" fill="#111" opacity="0.4"/>
-<rect x="16" y="50" width="198" height="4" fill="#aaa" opacity="0.45"/>
-<path d="M72 35Q82 12 110 8L136 7Q162 8 172 22L188 35Z" fill="#660000"/>
-<path d="M84 33Q94 11 114 8L134 7Q158 9 168 24L178 33Z" fill="rgba(100,140,180,0.45)"/>
-<rect x="100" y="42" width="52" height="18" rx="3" fill="#111" opacity="0.85"/>
-<text x="126" y="55" text-anchor="middle" font-family="Impact" font-size="13" fill="#bbb" letter-spacing="2">GRC</text>
-<text x="202" y="61" text-anchor="middle" font-family="Impact" font-size="18" fill="#aaa">95</text>
-<ellipse cx="104" cy="24" rx="12" ry="13" fill="white"/><ellipse cx="104" cy="25" rx="8" ry="10" fill="#3a8ec4"/><ellipse cx="106" cy="23" rx="3.5" ry="4" fill="#0d2233"/>
-<ellipse cx="140" cy="24" rx="12" ry="13" fill="white"/><ellipse cx="140" cy="25" rx="8" ry="10" fill="#3a8ec4"/><ellipse cx="142" cy="23" rx="3.5" ry="4" fill="#0d2233"/>
-<path d="M94 13Q104 10 114 13" fill="none" stroke="#660000" stroke-width="2.5" stroke-linecap="round"/>
-<path d="M130 12Q140 9 150 12" fill="none" stroke="#660000" stroke-width="2.5" stroke-linecap="round"/>
-<circle cx="52" cy="66" r="17" fill="#111"/><circle cx="52" cy="66" r="10" fill="#1a1a1a"/><circle cx="52" cy="66" r="4" fill="#555"/>
-<circle cx="178" cy="66" r="17" fill="#111"/><circle cx="178" cy="66" r="10" fill="#1a1a1a"/><circle cx="178" cy="66" r="4" fill="#555"/>
-</svg>`;}
+// ─── 8. McQUEEN GRC (Cars 3) ───────────────────────────────────────────────────
+function svgGRC(){
+return `<svg viewBox="0 0 300 115" xmlns="http://www.w3.org/2000/svg" style="--c1:#aa1010;--c2:#880000;--c3:#440000;--e1:#9ad4f5;--e2:#3a8ec4;--e3:#1a5080">
+${D}${shadow(148,108)}
+<path d="M22 78C16 78 14 70 14 62L14 50C14 40 26 36 42 30L70 22C86 8 114 4 148 3L180 3C210 3 236 12 254 26L276 42C286 48 288 56 288 64L288 75C288 80 282 80 276 80Z" fill="url(#bd)" filter="url(#ds)"/>
+<path d="M46 42L46 78L108 78L108 42Z" fill="#111" opacity="0.58"/>
+<path d="M162 40L288 40L288 74L162 74Z" fill="#111" opacity="0.42"/>
+<rect x="14" y="50" width="274" height="5" fill="#888" opacity="0.45"/>
+<path d="M98 36C113 10 146 3 176 3L204 3C232 4 252 16 266 34L280 38Z" fill="#440000" opacity="0.7"/>
+<path d="M112 34C126 8 152 3 176 3L202 3C228 5 246 18 258 34L266 36Z" fill="#8090a8" opacity="0.42"/>
+<rect x="102" y="44" width="56" height="20" rx="3" fill="#111" opacity="0.88"/>
+<text x="130" y="58" text-anchor="middle" font-family="Impact" font-size="13" fill="#bbb" letter-spacing="2">GRC</text>
+<text x="270" y="62" text-anchor="middle" font-family="Impact" font-size="20" fill="#aaa">95</text>
+${eye(152,24,17,18,'#440000')}${eye(232,22,17,18,'#440000')}
+<path d="M136 11C149 4 174 7 174 16" fill="none" stroke="#330000" stroke-width="3" stroke-linecap="round"/>
+<path d="M216 9C229 2 254 5 254 14" fill="none" stroke="#330000" stroke-width="3" stroke-linecap="round"/>
+${wheel(66,82,22)}${wheel(232,82,22)}
+</svg>`;
+}
 
-function svgDinocoMcQueen(){
-return`<svg viewBox="0 0 240 95" xmlns="http://www.w3.org/2000/svg"><defs><filter id="sh"><feGaussianBlur stdDeviation="3"/></filter></defs>
-${carShadow(120,84)}
-<path d="M20 65Q16 65 16 58L16 48Q16 40 26 37L46 30Q60 14 88 10L134 9Q162 8 176 20L202 34Q212 39 214 48L215 58Q215 65 208 66Z" fill="#00aadd"/>
-<path d="M50 36L72 36L60 52L82 52L56 68L74 54L52 54Z" fill="white" opacity="0.35"/>
-<path d="M72 36Q82 13 110 9L136 8Q162 9 172 23L188 36Z" fill="#0088bb"/>
-<path d="M84 34Q94 12 114 9L134 8Q158 10 168 25L178 34Z" fill="rgba(200,240,255,0.45)"/>
-<ellipse cx="52" cy="22" rx="22" ry="13" fill="white" opacity="0.9"/>
-<text x="52" y="19" text-anchor="middle" font-family="Impact" font-size="7" fill="#0055aa">DINOCO</text>
-<ellipse cx="52" cy="27" rx="8" ry="6" fill="#0055aa" opacity="0.7"/>
-<text x="200" y="61" text-anchor="middle" font-family="Impact" font-size="20" fill="white">95</text>
-<ellipse cx="104" cy="24" rx="12" ry="13" fill="white"/><ellipse cx="104" cy="25" rx="8" ry="10" fill="#0066aa"/><ellipse cx="106" cy="23" rx="3.5" ry="4" fill="#001433"/>
-<ellipse cx="140" cy="24" rx="12" ry="13" fill="white"/><ellipse cx="140" cy="25" rx="8" ry="10" fill="#0066aa"/><ellipse cx="142" cy="23" rx="3.5" ry="4" fill="#001433"/>
-<path d="M94 13Q104 10 114 13" fill="none" stroke="#0088bb" stroke-width="2.5" stroke-linecap="round"/>
-<path d="M130 12Q140 9 150 12" fill="none" stroke="#0088bb" stroke-width="2.5" stroke-linecap="round"/>
-<path d="M106 38Q120 50 134 38" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="2.5" stroke-linecap="round"/>
-<circle cx="52" cy="67" r="17" fill="#111"/><circle cx="52" cy="67" r="10" fill="#1a1a1a"/><circle cx="52" cy="67" r="4" fill="#555"/>
-<circle cx="178" cy="67" r="17" fill="#111"/><circle cx="178" cy="67" r="10" fill="#1a1a1a"/><circle cx="178" cy="67" r="4" fill="#555"/>
-</svg>`;}
+// ─── 9. DINOCO McQUEEN ─────────────────────────────────────────────────────────
+function svgDinoco(){
+return `<svg viewBox="0 0 300 115" xmlns="http://www.w3.org/2000/svg" style="--c1:#40ccee;--c2:#00aadd;--c3:#006699;--e1:#b0e8ff;--e2:#0088cc;--e3:#004488">
+${D}${shadow(148,108)}
+<path d="M22 78C16 78 14 70 14 62L14 50C14 40 26 36 42 30L70 22C86 8 114 4 148 3L180 3C210 3 236 12 254 26L276 42C286 48 288 56 288 64L288 75C288 80 282 80 276 80Z" fill="url(#bd)" filter="url(#ds)"/>
+<path d="M38 34C90 26 190 24 262 34" fill="none" stroke="rgba(100,220,255,0.25)" stroke-width="14" stroke-linecap="round"/>
+<path d="M52 32L78 32L62 52L88 52L60 78L80 58L54 58Z" fill="white" opacity="0.36"/>
+<path d="M98 36C113 10 146 3 176 3L204 3C232 4 252 16 266 34L280 38Z" fill="#005588" opacity="0.65"/>
+<path d="M112 34C126 8 152 3 176 3L202 3C228 5 246 18 258 34L266 36Z" fill="#c8f0ff" opacity="0.58"/>
+<ellipse cx="68" cy="22" rx="30" ry="16" fill="white" opacity="0.92"/>
+<text x="68" y="17" text-anchor="middle" font-family="Impact" font-size="9" fill="#0055aa">DINOCO</text>
+<ellipse cx="68" cy="26" rx="10" ry="7" fill="#0066bb" opacity="0.65"/>
+<text x="270" y="62" text-anchor="middle" font-family="Impact" font-size="20" fill="white">95</text>
+${eye(152,24,17,18,'#005588')}${eye(232,22,17,18,'#005588')}
+<path d="M136 11C149 4 174 7 174 16" fill="none" stroke="#004477" stroke-width="3" stroke-linecap="round"/>
+<path d="M216 9C229 2 254 5 254 14" fill="none" stroke="#004477" stroke-width="3" stroke-linecap="round"/>
+<path d="M148 42C172 56 204 56 224 42" fill="none" stroke="rgba(255,255,255,0.32)" stroke-width="3.5" stroke-linecap="round"/>
+${wheel(66,82,22)}${wheel(232,82,22)}
+</svg>`;
+}
 
+// ─── 10. FRANK (front-facing combine) ──────────────────────────────────────────
 function svgFrank(){
-return`<svg viewBox="0 0 220 125" xmlns="http://www.w3.org/2000/svg"><defs><filter id="sh"><feGaussianBlur stdDeviation="3"/></filter></defs>
-<ellipse cx="110" cy="117" rx="92" ry="7" fill="rgba(0,0,0,0.45)" filter="url(#sh)"/>
-<rect x="4" y="80" width="212" height="30" rx="4" fill="#777"/>
-<rect x="4" y="73" width="212" height="9" rx="3" fill="#888"/>
-<line x1="25" y1="73" x2="25" y2="110" stroke="#555" stroke-width="3"/>
-<line x1="46" y1="73" x2="46" y2="110" stroke="#555" stroke-width="3"/>
-<line x1="67" y1="73" x2="67" y2="110" stroke="#555" stroke-width="3"/>
-<line x1="88" y1="73" x2="88" y2="110" stroke="#555" stroke-width="3"/>
-<line x1="110" y1="73" x2="110" y2="110" stroke="#555" stroke-width="3"/>
-<line x1="132" y1="73" x2="132" y2="110" stroke="#555" stroke-width="3"/>
-<line x1="153" y1="73" x2="153" y2="110" stroke="#555" stroke-width="3"/>
-<line x1="174" y1="73" x2="174" y2="110" stroke="#555" stroke-width="3"/>
-<line x1="195" y1="73" x2="195" y2="110" stroke="#555" stroke-width="3"/>
-<rect x="42" y="18" width="136" height="62" rx="8" fill="#cc3300"/>
-<rect x="58" y="8" width="104" height="14" rx="4" fill="#aa2800"/>
-<rect x="70" y="1" width="8" height="20" rx="3" fill="#999"/><rect x="70" y="1" width="8" height="4" rx="2" fill="#777"/>
-<rect x="86" y="3" width="8" height="18" rx="3" fill="#999"/><rect x="86" y="3" width="8" height="4" rx="2" fill="#777"/>
-<rect x="130" y="1" width="8" height="20" rx="3" fill="#999"/>
-<rect x="146" y="3" width="8" height="18" rx="3" fill="#999"/>
-<line x1="42" y1="36" x2="14" y2="26" stroke="#888" stroke-width="5" stroke-linecap="round"/>
-<path d="M14 26Q6 20 12 34" fill="none" stroke="#888" stroke-width="4" stroke-linecap="round"/>
-<line x1="178" y1="36" x2="206" y2="26" stroke="#888" stroke-width="5" stroke-linecap="round"/>
-<path d="M206 26Q214 20 208 34" fill="none" stroke="#888" stroke-width="4" stroke-linecap="round"/>
-<ellipse cx="86" cy="46" rx="20" ry="20" fill="white"/><ellipse cx="86" cy="48" rx="14" ry="15" fill="#cc0000"/><ellipse cx="90" cy="44" rx="6" ry="7" fill="#110000"/>
-<ellipse cx="134" cy="46" rx="20" ry="20" fill="white"/><ellipse cx="134" cy="48" rx="14" ry="15" fill="#cc0000"/><ellipse cx="138" cy="44" rx="6" ry="7" fill="#110000"/>
-<path d="M64 30Q86 38 108 32" stroke="#660000" stroke-width="5" stroke-linecap="round" fill="none"/>
-<path d="M112 32Q134 38 156 30" stroke="#660000" stroke-width="5" stroke-linecap="round" fill="none"/>
-<path d="M94 68Q110 62 126 68" stroke="#660000" stroke-width="3" stroke-linecap="round" fill="none"/>
-<circle cx="58" cy="104" r="12" fill="#111"/><circle cx="58" cy="104" r="7" fill="#222"/>
-<circle cx="162" cy="104" r="12" fill="#111"/><circle cx="162" cy="104" r="7" fill="#222"/>
-</svg>`;}
+return `<svg viewBox="0 0 240 138" xmlns="http://www.w3.org/2000/svg" style="--c1:#e84020;--c2:#cc3300;--c3:#880000;--e1:#ff8060;--e2:#cc2200;--e3:#880000">
+${D}
+<ellipse cx="120" cy="132" rx="100" ry="7" fill="rgba(0,0,0,0.32)" filter="url(#gs)"/>
+<rect x="4" y="90" width="232" height="34" rx="5" fill="#6a6a6a"/>
+<rect x="4" y="83" width="232" height="9" rx="3" fill="#808080"/>
+<rect x="4" y="90" width="232" height="34" fill="none" stroke="#555" stroke-width="1"/>
+<line x1="28" y1="83" x2="28" y2="124" stroke="#555" stroke-width="3"/>
+<line x1="52" y1="83" x2="52" y2="124" stroke="#555" stroke-width="3"/>
+<line x1="76" y1="83" x2="76" y2="124" stroke="#555" stroke-width="3"/>
+<line x1="100" y1="83" x2="100" y2="124" stroke="#555" stroke-width="3"/>
+<line x1="120" y1="83" x2="120" y2="124" stroke="#555" stroke-width="3"/>
+<line x1="140" y1="83" x2="140" y2="124" stroke="#555" stroke-width="3"/>
+<line x1="164" y1="83" x2="164" y2="124" stroke="#555" stroke-width="3"/>
+<line x1="188" y1="83" x2="188" y2="124" stroke="#555" stroke-width="3"/>
+<line x1="212" y1="83" x2="212" y2="124" stroke="#555" stroke-width="3"/>
+<rect x="44" y="16" width="152" height="72" rx="10" fill="url(#bd)" filter="url(#ds)"/>
+<path d="M44 20C44 16 50 14 60 14L180 14C190 14 196 16 196 20L196 60C196 64 192 72 180 74L60 74C48 74 44 64 44 60Z" fill="url(#bd)"/>
+<rect x="58" y="6" width="124" height="14" rx="5" fill="#aa2800"/>
+<rect x="74" y="0" width="8" height="22" rx="3" fill="#aaa"/><rect x="74" y="0" width="8" height="5" rx="2" fill="#888"/>
+<rect x="90" y="2" width="8" height="20" rx="3" fill="#aaa"/>
+<rect x="136" y="0" width="8" height="22" rx="3" fill="#aaa"/>
+<rect x="152" y="2" width="8" height="20" rx="3" fill="#aaa"/>
+<line x1="44" y1="38" x2="14" y2="26" stroke="#999" stroke-width="6" stroke-linecap="round"/>
+<path d="M14 26Q4 20 10 36" fill="none" stroke="#999" stroke-width="4" stroke-linecap="round"/>
+<line x1="196" y1="38" x2="226" y2="26" stroke="#999" stroke-width="6" stroke-linecap="round"/>
+<path d="M226 26Q236 20 230 36" fill="none" stroke="#999" stroke-width="4" stroke-linecap="round"/>
+<ellipse cx="88" cy="46" rx="22" ry="22" fill="white"/><ellipse cx="88" cy="48" rx="16" ry="17" fill="url(#ey)"/><ellipse cx="92" cy="44" rx="7" ry="8" fill="#110000"/><circle cx="96" cy="40" r="4" fill="rgba(255,255,255,0.88)"/>
+<ellipse cx="152" cy="46" rx="22" ry="22" fill="white"/><ellipse cx="152" cy="48" rx="16" ry="17" fill="url(#ey)"/><ellipse cx="156" cy="44" rx="7" ry="8" fill="#110000"/><circle cx="160" cy="40" r="4" fill="rgba(255,255,255,0.88)"/>
+<path d="M64 30Q88 40 112 33" stroke="#660000" stroke-width="6" stroke-linecap="round" fill="none"/>
+<path d="M128 33Q152 40 176 30" stroke="#660000" stroke-width="6" stroke-linecap="round" fill="none"/>
+<path d="M100 70Q120 62 140 70" stroke="#660000" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+<circle cx="60" cy="116" r="14" fill="#111"/><circle cx="60" cy="116" r="8" fill="#1a1a1a"/>
+<circle cx="180" cy="116" r="14" fill="#111"/><circle cx="180" cy="116" r="8" fill="#1a1a1a"/>
+</svg>`;
+}
 
-function svgMissFritter(){
-return`<svg viewBox="0 0 280 105" xmlns="http://www.w3.org/2000/svg"><defs><filter id="sh"><feGaussianBlur stdDeviation="3"/></filter></defs>
-<ellipse cx="140" cy="97" rx="108" ry="6" fill="rgba(0,0,0,0.45)" filter="url(#sh)"/>
-<path d="M16 76Q12 76 12 68L12 50Q12 38 24 34L58 26Q66 14 86 12L222 12Q246 12 260 24L270 36Q274 42 274 52L274 68Q274 76 268 76Z" fill="#dd8800"/>
-<path d="M32 28Q18 16 10 8" stroke="#cc6600" stroke-width="7" stroke-linecap="round" fill="none"/>
-<path d="M46 24Q28 12 20 3" stroke="#cc6600" stroke-width="6" stroke-linecap="round" fill="none"/>
-<path d="M58 34Q66 14 86 12L132 12L132 34Z" fill="#bb7700"/>
-<path d="M66 32Q74 14 90 12L128 12L128 32Z" fill="rgba(150,180,100,0.4)"/>
-<rect x="136" y="17" width="22" height="16" rx="2" fill="rgba(150,190,220,0.3)" stroke="#aa6600" stroke-width="1"/>
-<rect x="164" y="17" width="22" height="16" rx="2" fill="rgba(150,190,220,0.3)" stroke="#aa6600" stroke-width="1"/>
-<rect x="192" y="17" width="22" height="16" rx="2" fill="rgba(150,190,220,0.3)" stroke="#aa6600" stroke-width="1"/>
-<rect x="220" y="17" width="22" height="16" rx="2" fill="rgba(150,190,220,0.3)" stroke="#aa6600" stroke-width="1"/>
-<text x="170" y="58" text-anchor="middle" font-family="Impact" font-size="9" fill="#ffcc00" letter-spacing="1">MISS FRITTER</text>
-<text x="170" y="72" text-anchor="middle" font-family="Impact" font-size="10" fill="#ffcc00" opacity="0.6">CRAZY EIGHT</text>
-<ellipse cx="82" cy="24" rx="12" ry="13" fill="#ffcc00"/><ellipse cx="82" cy="25" rx="8" ry="10" fill="#ff2200"/><ellipse cx="84" cy="23" rx="3.5" ry="4" fill="#000"/>
-<ellipse cx="114" cy="24" rx="12" ry="13" fill="#ffcc00"/><ellipse cx="114" cy="25" rx="8" ry="10" fill="#ff2200"/><ellipse cx="116" cy="23" rx="3.5" ry="4" fill="#000"/>
-<line x1="70" y1="12" x2="94" y2="18" stroke="#cc4400" stroke-width="4" stroke-linecap="round"/>
-<line x1="102" y1="18" x2="126" y2="12" stroke="#cc4400" stroke-width="4" stroke-linecap="round"/>
-<path d="M84 36Q98 48 112 36" fill="none" stroke="#cc4400" stroke-width="2" stroke-linecap="round"/>
-<circle cx="50" cy="78" r="16" fill="#111"/><circle cx="50" cy="78" r="9" fill="#1a1a1a"/><circle cx="50" cy="78" r="4" fill="#444"/>
-<circle cx="132" cy="78" r="16" fill="#111"/><circle cx="132" cy="78" r="9" fill="#1a1a1a"/>
-<circle cx="242" cy="78" r="16" fill="#111"/><circle cx="242" cy="78" r="9" fill="#1a1a1a"/>
-</svg>`;}
+// ─── 11. MISS FRITTER ──────────────────────────────────────────────────────────
+function svgFritter(){
+return `<svg viewBox="0 0 340 110" xmlns="http://www.w3.org/2000/svg" style="--c1:#ffaa00;--c2:#dd8800;--c3:#995500;--e1:#ff8040;--e2:#ff2200;--e3:#880000">
+${D}
+<ellipse cx="170" cy="104" rx="130" ry="7" fill="rgba(0,0,0,0.32)" filter="url(#gs)"/>
+<path d="M16 78Q12 78 12 70L12 52Q12 40 24 36L60 28Q68 16 88 14L226 14Q250 14 264 26L274 38Q278 44 278 54L278 70Q278 78 272 78Z" fill="url(#bd)" filter="url(#ds)"/>
+<path d="M32 30Q18 18 10 8" stroke="#cc6600" stroke-width="8" stroke-linecap="round" fill="none"/>
+<path d="M46 26Q28 14 20 4" stroke="#cc6600" stroke-width="6" stroke-linecap="round" fill="none"/>
+<path d="M60 36Q68 16 88 14L134 14L134 36Z" fill="#bb7700" opacity="0.7"/>
+<path d="M68 34Q76 16 92 14L130 14L130 34Z" fill="rgba(160,190,120,0.38)"/>
+<rect x="138" y="20" width="26" height="18" rx="2" fill="rgba(160,200,230,0.32)" stroke="#aa6600" stroke-width="1"/>
+<rect x="170" y="20" width="26" height="18" rx="2" fill="rgba(160,200,230,0.32)" stroke="#aa6600" stroke-width="1"/>
+<rect x="202" y="20" width="26" height="18" rx="2" fill="rgba(160,200,230,0.32)" stroke="#aa6600" stroke-width="1"/>
+<rect x="234" y="20" width="26" height="18" rx="2" fill="rgba(160,200,230,0.32)" stroke="#aa6600" stroke-width="1"/>
+<text x="176" y="60" text-anchor="middle" font-family="Impact" font-size="10" fill="#ffcc00" letter-spacing="1">MISS FRITTER</text>
+<text x="176" y="74" text-anchor="middle" font-family="Impact" font-size="9" fill="#ff8800" opacity="0.7">CRAZY EIGHT</text>
+${eye(84,26,13,14,'#994400')}${eye(116,26,13,14,'#994400')}
+<line x1="72" y1="14" x2="96" y2="20" stroke="#cc4400" stroke-width="4.5" stroke-linecap="round"/>
+<line x1="104" y1="20" x2="128" y2="14" stroke="#cc4400" stroke-width="4.5" stroke-linecap="round"/>
+<path d="M86 38Q100 50 114 38" fill="none" stroke="#cc4400" stroke-width="2.5" stroke-linecap="round"/>
+${wheel(50,80,17)}${wheel(134,80,17)}${wheel(246,80,17)}
+</svg>`;
+}
 
-function svgFinnMcMissile(){
-return`<svg viewBox="0 0 220 90" xmlns="http://www.w3.org/2000/svg"><defs><filter id="sh"><feGaussianBlur stdDeviation="3"/></filter></defs>
-${carShadow(110,74)}
-<path d="M22 62Q16 62 16 54L16 44Q16 36 26 32L50 24Q62 10 88 8L130 7Q156 7 168 18L194 32Q206 38 208 48L208 58Q208 64 202 64Z" fill="#4488bb"/>
-<path d="M22 36Q50 28 100 26Q150 26 196 32" fill="none" stroke="rgba(200,220,255,0.3)" stroke-width="8"/>
-<path d="M192 32L212 18L210 46Z" fill="#336699"/>
-<path d="M192 50L214 56L210 64Z" fill="#336699"/>
-<rect x="62" y="35" width="34" height="22" rx="2" fill="#336699"/>
-<line x1="62" y1="35" x2="96" y2="57" stroke="white" stroke-width="2.5"/>
-<line x1="96" y1="35" x2="62" y2="57" stroke="white" stroke-width="2.5"/>
-<line x1="62" y1="46" x2="96" y2="46" stroke="white" stroke-width="3"/>
-<line x1="79" y1="35" x2="79" y2="57" stroke="white" stroke-width="3"/>
-<line x1="62" y1="35" x2="96" y2="57" stroke="#cc0000" stroke-width="1.5"/>
-<line x1="96" y1="35" x2="62" y2="57" stroke="#cc0000" stroke-width="1.5"/>
-<path d="M72 30Q82 8 108 7L132 6Q156 8 166 22L178 30Z" fill="#2d6699"/>
-<path d="M84 28Q94 7 112 7L130 6Q152 8 162 24L170 28Z" fill="rgba(180,220,255,0.5)"/>
-<ellipse cx="106" cy="21" rx="11" ry="12" fill="white"/><ellipse cx="106" cy="22" rx="7" ry="9" fill="#2255aa"/><ellipse cx="108" cy="20" rx="3" ry="3.5" fill="#050a20"/>
-<ellipse cx="138" cy="21" rx="11" ry="12" fill="white"/><ellipse cx="138" cy="22" rx="7" ry="9" fill="#2255aa"/><ellipse cx="140" cy="20" rx="3" ry="3.5" fill="#050a20"/>
-<path d="M96 10Q106 7 116 10" fill="none" stroke="#2d6699" stroke-width="2.5" stroke-linecap="round"/>
-<path d="M128 10Q138 7 148 10" fill="none" stroke="#2d6699" stroke-width="2.5" stroke-linecap="round"/>
-<circle cx="48" cy="64" r="16" fill="#111"/><circle cx="48" cy="64" r="9" fill="#1a1a1a"/><circle cx="48" cy="64" r="4" fill="#444"/>
-<circle cx="176" cy="64" r="16" fill="#111"/><circle cx="176" cy="64" r="9" fill="#1a1a1a"/><circle cx="176" cy="64" r="4" fill="#444"/>
-</svg>`;}
+// ─── 12. FINN McMISSILE ────────────────────────────────────────────────────────
+function svgFinn(){
+return `<svg viewBox="0 0 280 110" xmlns="http://www.w3.org/2000/svg" style="--c1:#6aace0;--c2:#4488bb;--c3:#224477;--e1:#90c8f0;--e2:#2255aa;--e3:#112244">
+${D}${shadow(138,103)}
+<path d="M22 64Q16 64 16 56L16 44Q16 36 26 32L50 24Q62 10 88 8L130 7Q156 7 168 18L194 32Q206 38 208 48L208 58Q208 64 202 64Z" fill="url(#bd)" filter="url(#ds)"/>
+<path d="M22 34C50 28 160 26 196 32" fill="none" stroke="rgba(180,220,255,0.22)" stroke-width="12" stroke-linecap="round"/>
+<path d="M192 32L214 18L212 46Z" fill="#336699"/>
+<path d="M192 50L216 56L212 64Z" fill="#336699"/>
+<rect x="62" y="36" width="36" height="22" rx="2" fill="#224477"/>
+<line x1="62" y1="36" x2="98" y2="58" stroke="white" stroke-width="2.5"/>
+<line x1="98" y1="36" x2="62" y2="58" stroke="white" stroke-width="2.5"/>
+<line x1="62" y1="47" x2="98" y2="47" stroke="white" stroke-width="3"/>
+<line x1="80" y1="36" x2="80" y2="58" stroke="white" stroke-width="3"/>
+<line x1="62" y1="36" x2="98" y2="58" stroke="#cc0000" stroke-width="1.5"/>
+<line x1="98" y1="36" x2="62" y2="58" stroke="#cc0000" stroke-width="1.5"/>
+<path d="M72 30Q82 8 108 7L132 6Q156 8 166 22L178 30Z" fill="#1a4466" opacity="0.68"/>
+<path d="M84 28Q94 7 112 7L130 6Q152 8 162 24L170 28Z" fill="#c0dff5" opacity="0.62"/>
+<path d="M88 24C100 7 114 6 130 6" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="10"/>
+<circle cx="166" cy="42" r="5" fill="#888"/><circle cx="180" cy="36" r="4" fill="#888"/>
+${eye(106,21,11,12,'#1a4466')}${eye(140,21,11,12,'#1a4466')}
+<path d="M96 10Q106 6 116 10" fill="none" stroke="#1a4466" stroke-width="2.5" stroke-linecap="round"/>
+<path d="M130 9Q140 5 150 9" fill="none" stroke="#1a4466" stroke-width="2.5" stroke-linecap="round"/>
+${wheel(48,66,17)}${wheel(178,66,17)}
+</svg>`;
+}
 
-// ── CHARACTER DATA ────────────────────────────────────────────────────────────
+// ═══ DATA ═══
 const CARS=[
-  {svg:svgMcQueenRusteze, name:'LIGHTNING McQUEEN',         sub:'RUSTEZE RACING CENTER',              tag:'"KA-CHOW!" · PISTON CUP CHAMPION · #95',          color:'#cc1f00',glow:'#ff4400',shadow:'#660000'},
-  {svg:svgMater,          name:'MATER',                     sub:'RADIATOR SPRINGS TOW & SALVAGE',     tag:'WORLD\'S BEST BACKWARDS DRIVER · LOYAL FRIEND',  color:'#8b5e2a',glow:'#d4903e',shadow:'#3d2010'},
-  {svg:svgMack,           name:'MACK',                      sub:'RUSTEZE RACING TRANSPORT',           tag:'LIGHTNING\'S HAULER · BLUE THUNDER',             color:'#1a4fa0',glow:'#3a7fd4',shadow:'#0a1a44'},
-  {svg:svgRed,            name:'RED',                       sub:'RADIATOR SPRINGS FIRE DEPT.',        tag:'BRAVEST HEART · MOST CARING SOUL IN TOWN',       color:'#cc1800',glow:'#ff5500',shadow:'#660000'},
-  {svg:svgChickHicks,     name:'CHICK HICKS',               sub:'HOSTILE TAKEOVER BANK RACING',       tag:'"THUNDER!" · #86 · THE PESKY LITTLE STICKER',   color:'#1a6e1a',glow:'#44cc44',shadow:'#0a3a0a'},
-  {svg:svgSheriff,        name:'SHERIFF',                   sub:'RADIATOR SPRINGS POLICE DEPT.',      tag:'GUARDIAN OF ROUTE 66 · LAW OF THE LAND',         color:'#1a1a4e',glow:'#6666cc',shadow:'#000022'},
-  {svg:svgTheKing,        name:'STRIP "THE KING" WEATHERS', sub:'DINOCO RACING · D.I.N.O.C.O.',       tag:'SEVEN-TIME PISTON CUP CHAMPION · #43',           color:'#0055aa',glow:'#00aaee',shadow:'#002233'},
-  {svg:svgMcQueenGRC,     name:'McQUEEN · GRC LIVERY',      sub:'GLOBAL RACING CIRCUIT · CARS 3',     tag:'NEXT-GEN CHALLENGER · JACKSON STORM ERA',        color:'#880000',glow:'#ff2200',shadow:'#330000'},
-  {svg:svgDinocoMcQueen,  name:'DINOCO McQUEEN',            sub:'DINOCO · ALTERNATE UNIVERSE',        tag:'WHAT IF? · #95 · METALLIC BLUE DREAM',          color:'#0088bb',glow:'#00ccee',shadow:'#002233'},
-  {svg:svgFrank,          name:'FRANK',                     sub:'ORNAMENT VALLEY FARM',               tag:'CHUD BUCKER\'S NIGHTMARE · COMBINE HARVESTER',  color:'#cc3300',glow:'#ff5500',shadow:'#440000'},
-  {svg:svgMissFritter,    name:'MISS FRITTER',              sub:'THUNDER HOLLOW DEMOLITION DERBY',    tag:'SCHOOL BUS OF DOOM · CRAZY EIGHT LEGEND',        color:'#cc8800',glow:'#ffaa00',shadow:'#443300'},
-  {svg:svgFinnMcMissile,  name:'FINN McMISSILE',            sub:'BRITISH INTELLIGENCE · CARS 2',      tag:'SPY · WORLD GRAND PRIX · LICENSE TO RACE',       color:'#336699',glow:'#66aadd',shadow:'#112233'},
+  {svg:svgMcQueen, name:'LIGHTNING McQUEEN',         sub:'RUSTEZE RACING CENTER',           tag:'"KA-CHOW!" · PISTON CUP CHAMPION · #95',        color:'#cc1f00',glow:'#ff4400',shadow:'#660000'},
+  {svg:svgMater,   name:'MATER',                     sub:'RADIATOR SPRINGS TOW & SALVAGE',  tag:'WORLD\'S BEST BACKWARDS DRIVER · LOYAL FRIEND', color:'#8b5e2a',glow:'#d4903e',shadow:'#3d2010'},
+  {svg:svgMack,    name:'MACK',                      sub:'RUSTEZE RACING TRANSPORT',        tag:'LIGHTNING\'S HAULER · BLUE THUNDER',            color:'#1a4fa0',glow:'#3a7fd4',shadow:'#0a1a44'},
+  {svg:svgRed,     name:'RED',                       sub:'RADIATOR SPRINGS FIRE DEPT.',     tag:'BRAVEST HEART · MOST CARING SOUL IN TOWN',      color:'#cc1800',glow:'#ff5500',shadow:'#660000'},
+  {svg:svgChick,   name:'CHICK HICKS',               sub:'HOSTILE TAKEOVER BANK RACING',    tag:'"THUNDER!" · #86 · THE PESKY LITTLE STICKER',  color:'#1a6e1a',glow:'#44cc44',shadow:'#0a3a0a'},
+  {svg:svgSheriff, name:'SHERIFF',                   sub:'RADIATOR SPRINGS POLICE DEPT.',   tag:'GUARDIAN OF ROUTE 66 · LAW OF THE LAND',        color:'#1a1a4e',glow:'#6666cc',shadow:'#000022'},
+  {svg:svgKing,    name:'STRIP "THE KING" WEATHERS', sub:'DINOCO RACING · D.I.N.O.C.O.',    tag:'SEVEN-TIME PISTON CUP CHAMPION · #43',          color:'#0055aa',glow:'#00aaee',shadow:'#002233'},
+  {svg:svgGRC,     name:'McQUEEN · GRC LIVERY',      sub:'GLOBAL RACING CIRCUIT · CARS 3',  tag:'NEXT-GEN CHALLENGER · JACKSON STORM ERA',       color:'#880000',glow:'#ff2200',shadow:'#330000'},
+  {svg:svgDinoco,  name:'DINOCO McQUEEN',            sub:'DINOCO · ALTERNATE UNIVERSE',     tag:'WHAT IF? · #95 · METALLIC BLUE DREAM',         color:'#0088bb',glow:'#00ccee',shadow:'#002233'},
+  {svg:svgFrank,   name:'FRANK',                     sub:'ORNAMENT VALLEY FARM',            tag:'CHUD BUCKER\'S NIGHTMARE · COMBINE HARVESTER', color:'#cc3300',glow:'#ff5500',shadow:'#440000'},
+  {svg:svgFritter, name:'MISS FRITTER',              sub:'THUNDER HOLLOW DEMOLITION DERBY', tag:'SCHOOL BUS OF DOOM · CRAZY EIGHT LEGEND',       color:'#cc8800',glow:'#ffaa00',shadow:'#443300'},
+  {svg:svgFinn,    name:'FINN McMISSILE',            sub:'BRITISH INTELLIGENCE · CARS 2',   tag:'SPY · WORLD GRAND PRIX · LICENSE TO RACE',      color:'#336699',glow:'#66aadd',shadow:'#112233'},
 ];
 
-// ── CANVAS BACKGROUND ─────────────────────────────────────────────────────────
+// ═══ CANVAS BACKGROUND ═══
 const canvas=document.getElementById('bg'),ctx=canvas.getContext('2d');
 const fx=document.getElementById('fx'),fctx=fx.getContext('2d');
 let W,H,T=0;
@@ -399,7 +438,7 @@ function spawnP(){if(Math.random()>0.35)return;const cx=W/2,cy=H*0.38,a=Math.ran
 function drawP(){fctx.clearRect(0,0,W,H);particles.forEach((p,i)=>{p.x+=p.vx;p.y+=p.vy;p.vy+=0.04;p.life-=p.decay;if(p.life<=0){particles.splice(i,1);return;}fctx.beginPath();fctx.arc(p.x,p.y,p.r*p.life,0,Math.PI*2);fctx.fillStyle=`rgba(255,200,60,${p.life*0.7})`;fctx.fill();});}
 function frame(){ctx.clearRect(0,0,W,H);sky();drawStars();sun();mountains();buildings();road();spawnP();drawP();T+=0.016;requestAnimationFrame(frame);}frame();
 
-// ── SLIDESHOW ─────────────────────────────────────────────────────────────────
+// ═══ SLIDESHOW ═══
 const introEl=document.querySelector('#intro'),cardEl=document.getElementById('car-card'),outroEl=document.getElementById('outro');
 const cNum=document.getElementById('c-num'),cSvgEl=document.getElementById('c-svg'),cName=document.getElementById('c-name'),cSub=document.getElementById('c-sub'),cTag=document.getElementById('c-tag');
 const progressEl=document.getElementById('progress'),transEl=document.getElementById('trans'),counterEl=document.getElementById('counter'),uiEl=document.getElementById('ui');
@@ -410,7 +449,7 @@ function setDot(i){document.querySelectorAll('.dot').forEach(d=>d.classList.remo
 function showCar(i){const c=CARS[i];flash(()=>{uiEl.style.display='none';outroEl.classList.remove('show');cardEl.style.setProperty('--glow',c.glow);cardEl.style.setProperty('--shadow',c.shadow);cNum.textContent=`${String(i+1).padStart(2,'0')} / ${CARS.length}`;cSvgEl.innerHTML=c.svg();cName.textContent=c.name;cName.style.setProperty('--glow',c.glow);cName.style.setProperty('--shadow',c.shadow);cSub.textContent=c.sub;cTag.textContent=c.tag;cardEl.classList.add('show');counterEl.textContent=`${i+1} of ${CARS.length}`;currentGlow=c.glow;particles=[];setDot(i);current=i;});}
 function showOutro(){flash(()=>{cardEl.classList.remove('show');counterEl.textContent='';particles=[];document.querySelectorAll('.dot').forEach(d=>d.classList.remove('active'));outroEl.classList.add('show');current=CARS.length;});}
 function showIntroScreen(){flash(()=>{cardEl.classList.remove('show');outroEl.classList.remove('show');counterEl.textContent='';particles=[];document.querySelectorAll('.dot').forEach(d=>d.classList.remove('active'));uiEl.style.display='flex';introEl.style.animation='none';introEl.offsetHeight;introEl.style.animation='fadeUp 1.8s cubic-bezier(.22,1,.36,1) forwards';current=-2;});}
-function scheduleNext(idx){clearTimeout(timer);timer=setTimeout(advance,idx<0?5000:idx>=CARS.length?7000:4800);}
+function scheduleNext(idx){clearTimeout(timer);timer=setTimeout(advance,idx<0?5200:idx>=CARS.length?7000:5000);}
 function jumpTo(idx){if(idx>=0&&idx<CARS.length)showCar(idx);else if(idx>=CARS.length)showOutro();else showIntroScreen();scheduleNext(idx);}
 function advance(){if(current===-2)jumpTo(0);else if(current<CARS.length-1)jumpTo(current+1);else if(current===CARS.length-1)jumpTo(CARS.length);else jumpTo(-2);}
 document.addEventListener('click',e=>{if(e.target.closest('.dot'))return;clearTimeout(timer);advance();});
